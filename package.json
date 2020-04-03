@@ -19,7 +19,9 @@
   "dependencies": {
     "express": "^4.17.1",
     "fs-extra": "^9.0.0",
+    "node-sass": "^4.13.1",
     "pino": "^6.1.0",
-    "pino-pretty": "^4.0.0"
+    "pino-pretty": "^4.0.0",
+    "pug": "^2.0.4"
   }
 }
