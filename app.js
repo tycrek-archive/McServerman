@@ -3,8 +3,10 @@ const path = require('path');
 const log = require('pino')({
 	prettyPrint: process.env.NODE_ENV === 'production' ? false : true
 });
+const Sass = require('node-sass');
 const express = require('express');
 const app = express();
+
 
 /* Constants */
 const HOST = '0.0.0.0'; // ONLY change if using a different interface! If unsure, leave as 0.0.0.0
@@ -15,6 +17,12 @@ const DOWNLOAD_LINKS = {
 	bedrock: 'https://www.minecraft.net/en-us/download/server/bedrock' // Bedrock currently is NOT supported. This link is not a Direct Download. Rather, the HTML will have to be parsed to find the correct link.
 };
 
+
+/* Express app setup */
+app.use(express.static(path.join(__dirname, 'javascript')));
+app.use('/fonts', express.static(path.join(__dirname, 'fonts')))
+
+// Pug rendering engine
 app.set('views', path.join(__dirname, 'views/pages'));
 app.set('view engine', 'pug');
 
@@ -23,7 +31,8 @@ app.listen(PORT, HOST, () => log.info(`Server hosted on ${HOST}:${PORT}`));
 
 /* Routes */
 function setRoutes() {
-	app.get('/', (req, res) => res.render('index'));
+	app.get('/', (_req, res) => res.render('index'));
+	app.get('/css', (_req, res, next) => Sass.render({ file: path.join(__dirname, 'sass/main.scss'), outputStyle: 'compressed' }, (err, result) => err ? next(err) : res.type('css').send(result.css)));
 
 	// HTTP 404
 	app.use((_req, res) => res.status(404).send('404 NOT FOUND'));

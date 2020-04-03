@@ -1,0 +1,22 @@
+/* Responsive breakpoints */
+$tiny: (max-width: 600px);
+$small: (min-width: 600px);
+$medium: (min-width: 800px);
+$large: (min-width: 1000px);
+$huge: (min-width: 1200px);
+$breakpoints: (
+  'tiny': $tiny,
+  'small': $small,
+  'medium': $medium,
+  'large': $large,
+  'huge': $huge,
+
+  'phone': $tiny,
+  'phablet': $small,
+  'tablet': $medium,
+  'desktop': $large,
+  'ultra': $huge,
+);
+
+/* Non-breaking space code */
+$nbsp: '\00a0';
