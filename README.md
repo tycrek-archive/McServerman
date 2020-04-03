@@ -21,6 +21,9 @@ For now I'm only planning to add support for Vanilla and [PaperMC](https://paper
 - [ ] Alerts (shutdown, player join, etc.)
 - [ ] System resource monitor
 - [ ] Wiki (installation, usage, etc.)
+- [ ] Bedrock support
+- [ ] Password authentication
+- [ ] OAuth authentication (maybe)
 - *I'll update this list with more when I think of new features*
 
 ## Limitations
