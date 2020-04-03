@@ -1,0 +1,43 @@
+.col-12
+	center
+		h1 Welcome!
+		p Welcome to McServerman setup. Here, you can create a brand new server or import and existing server.
+		p Please note that this tool is in early development, so please #[strong backup your server] before importing!
+.col-6
+	h2.new-import-headers New server
+	#new-server
+		form(onsubmit='newServer()')#new-server-form
+			h3 Server type
+			input(type='radio' id='vanilla' name='server_type' value='vanilla')
+			label(for='server_type') &nbsp;Vanilla
+			br
+			input(type='radio' id='papermc' name='server_type' value='papermc')
+			label(for='server_type') &nbsp;PaperMC
+			br
+			//-input(type='radio' id='bedrock' name='server_type' value='bedrock')
+			//-label(for='server_type') &nbsp;Bedrock
+			//-br
+
+			h3 Game version
+			select(id='server_version' name='server_version')
+				-
+					var versions = ["1.15.2","1.15.1","1.15","1.14.4","1.14.3","1.14.2","1.14.1","1.14","1.13.2","1.13.1","1.13","1.12.2","1.12.1","1.12","1.11.2","1.11.1","1.11","1.10.2","1.10.1","1.10","1.9.4","1.9.3","1.9.2","1.9.1","1.9","1.8.9","1.8.8","1.8.7","1.8.6","1.8.5","1.8.4","1.8.3","1.8.2","1.8.1","1.8","1.7.10","1.7.9","1.7.8","1.7.7","1.7.6","1.7.5","1.7.4","1.7.3","1.7.2","1.7.1","1.7","1.6.4","1.6.2","1.6.1","1.5.2","1.5.1","1.5","1.4.7","1.4.6","1.4.5","1.4.4","1.4.2","1.3.2","1.3.1","1.2.5","1.2.4","1.2.3","1.2.2","1.2.1","1.1","1.0.0"]
+				each version in versions
+					option(value=version)= version
+			br
+
+			h3 Server name
+			em This name is for the folder the server is in, as well as what McServerman knows the server by.
+			br
+			br
+			input(type='text' id='server_name' name='server_name')
+
+			br
+			br
+			input(type='button' value='Create server' onclick='newServer(this.form)')#new-server-submit
+
+.col-6
+	h2.new-import-headers Import server
+	#import-server
+		form(action="/servers/import", method="post")
+			input(type='text')

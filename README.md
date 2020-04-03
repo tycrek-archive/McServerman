@@ -24,6 +24,7 @@ For now I'm only planning to add support for Vanilla and [PaperMC](https://paper
 - [ ] Bedrock support
 - [ ] Password authentication
 - [ ] OAuth authentication (maybe)
+- [ ] Snapshot servers
 - *I'll update this list with more when I think of new features*
 
 ## Limitations
