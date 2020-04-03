@@ -8,7 +8,7 @@ For now I'm only planning to add support for Vanilla and [PaperMC](https://paper
 
 ## Roadmap/Todo
 
-- [ ] Download Vanilla JAR
+- [x] Download Vanilla JAR
 - [ ] Download [PaperMC](https://papermc.io/) (Spigot) JAR
 - [ ] Whitelist manager
 - [ ] GUI `server.properties` editor with explanations/recommended settings
