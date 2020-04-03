@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/tycrek/McServerman/issues"
   },
-  "homepage": "https://github.com/tycrek/McServerman#readme"
+  "homepage": "https://github.com/tycrek/McServerman#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "fs-extra": "^9.0.0",
+    "pino": "^6.1.0",
+    "pino-pretty": "^4.0.0"
+  }
 }
