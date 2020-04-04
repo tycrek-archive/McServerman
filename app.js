@@ -5,6 +5,8 @@ const log = require('pino')({ prettyPrint: process.env.NODE_ENV === 'production'
 const Sass = require('node-sass');
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
+const { spawn } = require('child_process');
+const moment = require('moment');
 
 // Express
 const express = require('express');
@@ -14,6 +16,7 @@ const app = express();
 /* Constants */
 const HOST = '0.0.0.0'; // ONLY change if using a different interface! If unsure, leave as 0.0.0.0
 const PORT = 7767;
+const USER_CONFIG = path.join(__dirname, 'config/user/config.json');
 const DOWNLOAD_LINKS = {
 	vanilla: 'https://mcversions.net/download/', // Vanilla must have version appended in format of MAJOR.MINOR.PATCH. Example: https://mcversions.net/download/1.15.2
 	paper: {
@@ -50,16 +53,15 @@ function setRoutes() {
 	//// Page routes ////
 	// Returns HTML from res.render
 	app.get('/pages/home', (_req, res, next) => {
-		let userConfig = path.join(__dirname, 'config/user/config.json');
-		fs.pathExists(userConfig, (err, exists) => {
-			err ? next(err) : fs.readJson(exists ? userConfig : path.join(__dirname, 'config/__default.json'), (err, config) => {
+		fs.pathExists(USER_CONFIG, (err, exists) => {
+			err ? next(err) : fs.readJson(exists ? USER_CONFIG : path.join(__dirname, 'config/__default.json'), (err, config) => {
 				err ? next(err) : res.render(exists ? 'home' : 'setup', config);
 			});
 		});
 	});
 
-	//// Server management routes ////
-	// MUST return json type
+	//// Server management routes //// MUST return json type
+	// NEW SERVER
 	app.get('/servers/new/:type/:version/:name', (req, res, next) => {
 		let type = req.params.type;
 		let version = req.params.version;
@@ -69,11 +71,14 @@ function setRoutes() {
 		let destFile = `${name}-${type}-${version}.jar`;
 		let dest = path.join(destPath, destFile);
 
-		let success = false
+		let success = false;
 
 		fs.ensureDir(destPath)
 			.then(() => type === 'vanilla' ? getVanillaUrl(version) : DOWNLOAD_LINKS.paper[version])
 			.then((url) => downloadJar(url, dest))
+			.then(() => runJar(destPath, destFile))
+			.then(() => signEula(path.join(destPath, 'eula.txt')))
+			.then(() => writeNewConfig(name, version, type, destPath, destFile))
 			.then(() => success = true)
 			.catch((err) => log.error(err))
 			.finally(() => res.type('json').send({ success: success }));
@@ -115,7 +120,9 @@ function getVanillaUrl(version) {
 
 // Downloads a server jar from the source. Saves to dest
 function downloadJar(source, dest) {
+	log.info(`Downloading server Jar from ${source}`);
 	return new Promise((resolve, reject) => {
+		let startTime = moment().valueOf(), endTime;
 		fetch(source)
 			.then((response) => {
 				let stream = response.body.pipe(fs.createWriteStream(dest));
@@ -124,6 +131,59 @@ function downloadJar(source, dest) {
 					stream.on('error', (err) => reject(err));
 				});
 			})
+			.then(() => endTime = moment().valueOf())
+			.then(() => log.info(`Server Jar downloaded to ${dest}, taking ${(endTime - startTime) / 1000} seconds`))
+			.then(() => resolve())
+			.catch((err) => reject(err));
+	});
+}
+
+// Runs the specified Jar file TODO: Runtime options
+function runJar(directory, jar) {
+	log.info(`Running Jar file in ${directory}`);
+	return new Promise((resolve, reject) => {
+		let java = spawn('java', ['-jar', jar], { cwd: directory, windowsHide: true });
+		java.stdout.on('data', (data) => log.info(`stdout: ${data}`));
+		java.stderr.on('data', (data) => log.error(`stderr: ${data}`));
+		java.on('close', (code) => {
+			let msg = `Child process exited with code ${code}`;
+			code != 0
+				? reject(log.warn(msg))
+				: resolve(log.info(msg));
+		});
+	});
+}
+
+// Opens the specified EULA file and changes "false" to "true" automatically
+function signEula(eulaPath) {
+	log.info(`Signing EULA ${eulaPath}`);
+	return new Promise((resolve, reject) => {
+		fs.readFile(eulaPath)
+			.then((bytes) => bytes.toString())
+			.then((text) => text.replace('false', 'true'))
+			.then((signed) => fs.writeFile(eulaPath, signed))
+			.then(() => resolve())
+			.catch((err) => reject(err));
+	});
+}
+
+// Creates a new USER_CONFIG file. This should only happen on first time setup
+function writeNewConfig(name, version, type, directory, jarFile) {
+	log.info(`Writing NEW configuration to ${USER_CONFIG}`);
+	return new Promise((resolve, reject) => {
+		let newConfig = { "servers": [] };
+		let server = { // JSON object, not JavaScript object!
+			"name": name,
+			"version": version,
+			"type": type,
+			"directory": directory,
+			"jarFile": jarFile,
+			"lastAccess": moment().valueOf() // For sorting
+		};
+		newConfig.servers.push(server);
+		fs.ensureFile(USER_CONFIG)
+			.then(() => fs.writeJson(USER_CONFIG, newConfig, { spaces: '\t' }))
+			.then(() => log.info('Done writing config!'))
 			.then(() => resolve())
 			.catch((err) => reject(err));
 	});
@@ -131,6 +191,7 @@ function downloadJar(source, dest) {
 
 // Gets a player UUID for whitelist/blacklist etc. operations before the player has joined the server
 function getPlayerUuid(name) {
+	log.info(`Attempting to grab UUID for Player '${name}`);
 	return new Promise((resolve, reject) => {
 		fetch(UUID_LINK + name)
 			.then((response) => response.text())

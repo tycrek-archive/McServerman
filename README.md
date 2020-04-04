@@ -8,8 +8,8 @@ For now I'm only planning to add support for Vanilla and [PaperMC](https://paper
 
 ## Roadmap/Todo
 
-- [x] Download Vanilla JAR
-- [x] Download [PaperMC](https://papermc.io/) (Spigot) JAR
+- [x] Download Vanilla Jar
+- [x] Download [PaperMC](https://papermc.io/) (Spigot) Jar
 - [ ] Download Java 8 JRE for best compatibility
 - [ ] Whitelist manager
 - [ ] GUI `server.properties` editor with explanations/recommended settings
