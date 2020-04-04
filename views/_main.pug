@@ -4,9 +4,10 @@ html
 		include includes/head
 	body
 		.row#header
-			.col-9
+			.col-1 &nbsp;
+			.col-7
 				h1 McServerman
-			.col-3
-				p Hello
+			.col-4
+				h3: button(onclick='LOAD_PAGE(PAGES.home)'): strong Home
 		.row#primary
 			block content
