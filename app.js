@@ -73,7 +73,12 @@ function setRoutes() {
 
 		let success = false;
 
-		fs.ensureDir(destPath)
+		fs.pathExists(destPath)
+			.then((exists) => {
+				if (exists) throw Error('Path already exists!');
+				else return;
+			})
+			.then(() => fs.ensureDir(destPath))
 			.then(() => type === 'vanilla' ? getVanillaUrl(version) : DOWNLOAD_LINKS.paper[version])
 			.then((url) => downloadJar(url, dest))
 			.then(() => runJar(destPath, destFile))
