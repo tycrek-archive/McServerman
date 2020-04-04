@@ -51,12 +51,12 @@
 						br
 						small!= 'Default: ' + __info__[index].default
 				-
-					var attr = {};
+					var attr = {id: index};
 					var propType = /^\d+$/.test(val) ? 'number' : val === 'true' || val === 'false' ? 'checkbox' : 'text';
 					if (propType === 'checkbox' && val === 'true') attr.checked = 'checked';
 					if (propType === 'text' || propType === 'number') attr.value = val;
 
-				td: input(type=propType)&attributes(attr)
+				td: input.server-properties(type=propType)&attributes(attr)
 				td
 					if __info__[index]
 						small= __info__[index].description
