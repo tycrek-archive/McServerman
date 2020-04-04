@@ -3,6 +3,7 @@
 		h1 Welcome!
 		p Welcome to McServerman setup. Here, you can create a brand new server or import and existing server.
 		p Please note that this tool is in early development, so please #[strong backup your server] before importing! If you find a bug, please report it on the #[a(href='https://github.com/tycrek/McServerman' target='_blank') GitHub repo].
+		br
 .col-6
 	h2.new-import-headers New server
 	#new-server
@@ -17,6 +18,7 @@
 			//-input(type='radio' id='bedrock' name='server_type' value='bedrock')
 			//-label(for='server_type') &nbsp;Bedrock
 			//-br
+			p: em Vanilla refers to #[strong unmodifed] server files directly from Mojang. #[a(href='https://papermc.io' target='_blank') PaperMC] is a fork of #[a(href='https://www.spigotmc.org/wiki/about-spigot/' target='_blank') Spigot] that provides various improvements over both Spigot and Vanilla servers. For a super basic server, choose Vanilla. For added performance and the ability to add mods, choose PaperMC.
 
 			h3 Game version
 			select(id='server_version' name='server_version' value='Select')

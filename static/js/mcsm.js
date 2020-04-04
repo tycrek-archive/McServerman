@@ -44,6 +44,10 @@ function newServer() {
 	console.log(name);
 
 	$('#new-server-submit').prop('disabled', true);
+	$('input[name="server_type"').prop('disabled', true);
+	$('#server_version').prop('disabled', true);
+	$('#server_name').prop('disabled', true);
+
 	$('#new-server-submit').val('Please wait');
 
 	fetch(`/servers/new/${type}/${version}/${name.replace(/[^a-zA-Z0-9\.\-\_ ]/g, '')}`)
@@ -51,6 +55,10 @@ function newServer() {
 		.then((json) => {
 			alert(json.success);
 			$('#new-server-submit').prop('disabled', false);
+			$('input[name="server_type"').prop('disabled', false);
+			$('#server_version').prop('disabled', false);
+			$('#server_name').prop('disabled', false);
+
 			$('#new-server-submit').val('Create server');
 		})
 		.catch((err) => alert(err));
