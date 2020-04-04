@@ -6,7 +6,7 @@
 .col-6
 	h2.new-import-headers New server
 	#new-server
-		form(onsubmit='newServer()')#new-server-form
+		form()#new-server-form
 			h3 Server type
 			input(type='radio' id='vanilla' name='server_type' value='vanilla' checked)
 			label(for='server_type') &nbsp;Vanilla
@@ -42,6 +42,4 @@
 
 .col-6
 	h2.new-import-headers Import server
-	#import-server
-		form(action="/servers/import", method="post")
-			input(type='text')
+	h3.new-import-headers: em Coming soon!
