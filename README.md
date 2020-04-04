@@ -11,6 +11,7 @@ For now I'm only planning to add support for Vanilla and [PaperMC](https://paper
 - [x] Download Vanilla Jar
 - [x] Download [PaperMC](https://papermc.io/) (Spigot) Jar
 - [x] Automatically "sign" EULA
+- [x] Manage multiple servers (only lists right now, no editing function yet)
 - [ ] Download Java 8 JRE for best compatibility
 - [ ] Player manager (whitelist/blacklist, ops, history, etc.)
 - [ ] GUI `server.properties` editor with explanations/recommended settings
