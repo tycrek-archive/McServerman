@@ -49,6 +49,7 @@ If you really want to contribute to this, sure, why not, go ahead.
 - [VSCodium](https://vscodium.com/) because @#$% Microsoft.
 - [MCVersions.net](https://mcversions.net/) for providing download links for Server Jar files
 - [MCUUID](https://mcuuid.net/) for providing information on player UUID (assists in player operations before they have ever joined)
+- [Official Minecraft Wiki - Gamepedia](https://minecraft.gamepedia.com/Server.properties)
 
 ## Hotel?
 
