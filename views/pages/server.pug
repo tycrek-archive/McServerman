@@ -1,0 +1,66 @@
+.col-3.server-panels#server-info-panel
+	h1= __server__.name
+	table#server-stats-table
+		tr
+			td(colspan=2)!= (__server__.type === 'vanilla' ? 'Vanilla' : 'PaperMC') + ' (' + __server__.version + ')'
+		tr
+			td(colspan=2): em= properties.motd
+		tr
+			td Status
+			td Unknown
+		tr
+			td Players
+			td: code 0
+		tr
+			td Uptime
+			td Unknown
+.col-3.server-panels.action-button-panel
+	h2 Server actions
+	h3: button: strong Start/Stop
+	h3: button: strong Restart
+	h3: button: strong Backup
+	h3: button: strong Restore
+.col-3.server-panels.action-button-panel
+	h2 World actions
+	h3: button: strong Upload world
+	h3: button: strong Download world
+	h3: button: strong Regenerate world
+.col-3.server-panels.action-button-panel
+	h2 Special actions
+	h3: button: strong Manage plugins
+	h3: button: strong Manage whitelist/ops
+	h3: button: strong Delete server
+
+.col-12.server-panels#server-properties-panel
+	br
+	br
+	h3: button: strong Save changes
+	table#server-properties-table
+		caption: code server.properties
+		tr
+			th Property
+			th Value
+			th Description
+		each val, index in properties
+			tr
+				td
+					code= index
+					if __info__[index]
+						br
+						small!= 'Type: ' + __info__[index].type
+						br
+						small!= 'Default: ' + __info__[index].default
+				-
+					var attr = {};
+					var propType = /^\d+$/.test(val) ? 'number' : val === 'true' || val === 'false' ? 'checkbox' : 'text';
+					if (propType === 'checkbox' && val === 'true') attr.checked = 'checked';
+					if (propType === 'text' || propType === 'number') attr.value = val;
+
+				td: input(type=propType)&attributes(attr)
+				td
+					if __info__[index]
+						small= __info__[index].description
+					else
+						small: em No description available
+	br
+	br

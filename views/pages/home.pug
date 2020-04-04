@@ -11,7 +11,8 @@
 				td= server.name
 				td= server.version
 				td!= server.type === 'vanilla' ? 'Vanilla' : 'PaperMC'
-				td.view-button: button(onclick='alert("View")') View
+				- var clickTarget = `LOAD_PAGE('/pages/server/${server.suuid}', true)`;
+				td.view-button: button(onclick=clickTarget) View
 	br
 	button(onclick='LOAD_PAGE(PAGES.setup)') Add server
 .col-4

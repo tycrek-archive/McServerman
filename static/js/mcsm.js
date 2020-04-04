@@ -6,6 +6,9 @@ const PAGES = {
 	setup: {
 		url: '/pages/setup',
 		callback: setupRadioButtonVersionSwap
+	},
+	server: {
+		url: '/pages/server'
 	}
 }
 
@@ -17,14 +20,14 @@ function __MAIN__() {
 	});
 }
 
-function LOAD_PAGE(page) {
+function LOAD_PAGE(page, override = false) {
 	$('#primary').fadeOut(() => $('#primary').html(`<center><br><br><br><br><h1>Loading...</h1></center>`));
 	$('#primary').fadeIn();
-	fetch(page.url)
+	fetch(!override ? page.url : page)
 		.then((response) => response.text())
 		.then((body) => {
 			$('#primary').fadeOut(() => $('#primary').html(body));
-			$('#primary').fadeIn(() => page.callback());
+			$('#primary').fadeIn(() => page.callback && page.callback());
 		})
 		.catch((err) => alert('Error!'));
 }

@@ -7,6 +7,7 @@ const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const { spawn } = require('child_process');
 const moment = require('moment');
+const uuid = require('uuid').v4;
 
 // Express
 const express = require('express');
@@ -59,8 +60,19 @@ function setRoutes() {
 			});
 		});
 	});
-	app.get('/pages/setup', (req, res, next) => {
-		res.render('setup');
+	app.get('/pages/setup', (req, res, next) => res.render('setup'));
+	app.get('/pages/server/:suuid', (req, res, next) => {
+		fs.readJson(USER_CONFIG)
+			.then((json) => json.servers)
+			.then((servers) => {
+				for (let i = 0; i < servers.length; i++) {
+					let server = servers[i];
+					if (server.suuid === req.params.suuid) return getServer(server);
+				}
+				throw Error('No such server exists!');
+			})
+			.then((config) => res.render('server', config))
+			.catch((err) => next(err));
 	});
 
 	//// Server management routes //// MUST return json type
@@ -69,6 +81,7 @@ function setRoutes() {
 		let type = req.params.type;
 		let version = req.params.version;
 		let name = req.params.name;
+		let suuid = uuid();
 
 		let destPath = path.join(__dirname, `servers/${name}-${type}-${version}/`);
 		let destFile = `${name}-${type}-${version}.jar`;
@@ -86,7 +99,7 @@ function setRoutes() {
 			.then((url) => downloadJar(url, dest))
 			.then(() => runJar(destPath, destFile))
 			.then(() => signEula(path.join(destPath, 'eula.txt')))
-			.then(() => writeNewConfig(name, version, type, destPath, destFile))
+			.then(() => writeNewConfig(name, version, type, suuid, destPath, destFile))
 			.then(() => success = true)
 			.catch((err) => log.error(err))
 			.finally(() => res.type('json').send({ success: success }));
@@ -176,7 +189,7 @@ function signEula(eulaPath) {
 }
 
 // Creates a new USER_CONFIG file. This should only happen on first time setup
-function writeNewConfig(name, version, type, directory, jarFile) {
+function writeNewConfig(name, version, type, suuid, directory, jarFile) {
 	log.info(`Writing NEW configuration to ${USER_CONFIG}`);
 	return new Promise((resolve, reject) => {
 		let config = { "servers": [] };
@@ -184,6 +197,7 @@ function writeNewConfig(name, version, type, directory, jarFile) {
 			"name": name,
 			"version": version,
 			"type": type,
+			"suuid": suuid,
 			"directory": directory,
 			"jarFile": jarFile,
 			"lastAccess": moment().valueOf() // For sorting
@@ -196,6 +210,40 @@ function writeNewConfig(name, version, type, directory, jarFile) {
 			.then(() => fs.writeJson(USER_CONFIG, config, { spaces: '\t' }))
 			.then(() => log.info('Done writing config!'))
 			.then(() => resolve())
+			.catch((err) => reject(err));
+	});
+}
+
+function getServer(server) {
+	return new Promise((resolve, reject) => {
+		let jsonProp = { properties: {} };
+		fs.readdir(server.directory)
+			.then((files) => {
+				if (!files.includes('server.properties')) throw Error('Missing server.properties file!');
+				else return fs.readFile(path.join(server.directory, 'server.properties'))
+			})
+			.then((bytes) => bytes.toString())
+			.then((properties) => {
+				// Split the server.properties file by newline to parse each rule
+				properties.split('\n').forEach((property) => {
+					// Remove any whitespace
+					property = property.trim();
+					// If line is blank or is a comment, ignore it
+					if (property === '' || property.startsWith('#')) return;
+					// Split by server.properties rule delimiter
+					let splitProp = property.split('=');
+					// Key is obviously the first
+					let key = splitProp[0];
+					// Splice to remove key (.pop() did not work) and rejoin if MOTD has = in it
+					let value = splitProp.splice(1).join('=');
+					// Add rule to JSON
+					jsonProp.properties[key] = value;
+				});
+				jsonProp['__server__'] = server;
+				return fs.readJson(path.join(__dirname, 'config/properties.json'));
+			})
+			.then((propertyInfo) => jsonProp['__info__'] = propertyInfo)
+			.then(() => resolve(jsonProp))
 			.catch((err) => reject(err));
 	});
 }
