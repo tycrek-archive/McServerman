@@ -1,5 +1,19 @@
 const PAGES = {
-	home: '/pages/home'
+	home: {
+		url: '/pages/home',
+		callback: () => {
+			$('input#vanilla').on('change', () => {
+				$('option.vanilla-versions').show();
+				$('.papermc-versions').hide();
+				$('.vanilla-versions[value="1.15.2"]').prop('selected', true)
+			});
+			$('input#papermc').on('change', () => {
+				$('option.vanilla-versions').hide();
+				$('.papermc-versions').show();
+				$('.papermc-versions[value="1.15"]').prop('selected', true)
+			});
+		}
+	}
 }
 
 function __MAIN__() {
@@ -11,11 +25,12 @@ function __MAIN__() {
 }
 
 function LOAD_PAGE(page) {
-	fetch(page)
+	fetch(page.url)
 		.then((response) => response.text())
 		.then((body) => {
 			$('#primary').html(body);
 		})
+		.then(() => page.callback())
 		.catch((err) => alert('Error!'));
 }
 

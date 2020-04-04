@@ -17,7 +17,12 @@ const HOST = '0.0.0.0'; // ONLY change if using a different interface! If unsure
 const PORT = 7767;
 const DOWNLOAD_LINKS = {
 	vanilla: 'https://mcversions.net/download/', // Vanilla must have version appended in format of MAJOR.MINOR.PATCH. Example: https://mcversions.net/download/1.15.2
-	paper: 'https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar', // PaperMC may need to be updated for 1.16
+	paper: {
+		1.15: 'https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar',
+		1.14: 'https://papermc.io/ci/job/Paper-1.14/lastSuccessfulBuild/artifact/paperclip.jar',
+		1.13: 'https://papermc.io/ci/job/Paper-1.13/lastSuccessfulBuild/artifact/paperclip.jar',
+		1.12: 'https://papermc.io/ci/job/Paper/lastSuccessfulBuild/artifact/paperclip.jar'
+	},
 	bedrock: 'https://www.minecraft.net/en-us/download/server/bedrock' // Bedrock currently is NOT supported. This link is not a Direct Download. Rather, the HTML will have to be parsed to find the correct link.
 };
 const JAVA_VERSIONS = [
@@ -125,6 +130,7 @@ function setRoutes() {
 	});
 
 	//// SERVER MANAGEMENT
+	// MUST return json type
 	app.get('/servers/new/:type/:version/:name', (req, res, next) => {
 		let type = req.params.type;
 		let version = req.params.version;
@@ -148,14 +154,28 @@ function setRoutes() {
 					return new Promise((resolve, reject) => {
 						stream.on('finish', resolve());
 						stream.on('error', (err) => reject(err));
-					})
+					});
+				})
+				.catch((err) => log.error(err))
+				.finally(() => {
+					res.type('json').send({ t: type, v: version, n: name });
+				});
+		} else if (type === 'papermc') {
+			fs.ensureDir(destPath)
+				.then(() => fetch(DOWNLOAD_LINKS.paper[version]))
+				.then((response) => {
+					let stream = response.body.pipe(fs.createWriteStream(path.join(destPath, destFile)));
+					return new Promise((resolve, reject) => {
+						stream.on('finish', resolve());
+						stream.on('error', (err) => reject(err));
+					});
 				})
 				.catch((err) => log.error(err))
 				.finally(() => {
 					res.type('json').send({ t: type, v: version, n: name });
 				});
 		} else {
-			res.type('json').send({ foo: 'bar' });
+			res.type('json').send({ msg: 'Invalid request' });
 		}
 	});
 
