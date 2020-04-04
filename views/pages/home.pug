@@ -1,9 +1,19 @@
 .col-8.home#server-list
-	button(onclick='LOAD_PAGE(PAGES.setup)') Add server
 	h2 Servers
-	ul
-	each server in servers
-		li!= `${server.name} :: ${server.version} :: ${server.type}`
+	table#server-list-table
+		tr
+			th Name
+			th Version
+			th Type
+			th &nbsp;
+		each server in servers
+			tr
+				td= server.name
+				td= server.version
+				td!= server.type === 'vanilla' ? 'Vanilla' : 'PaperMC'
+				td.view-button: button(onclick='alert("View")') View
+	br
+	button(onclick='LOAD_PAGE(PAGES.setup)') Add server
 .col-4
 	h2 Right Sidebar
 	p News?

@@ -1,3 +1,24 @@
 .home#server-list {
   padding: 0 4rem 0 4rem;
 }
+
+table#server-list-table {
+  border-collapse: collapse;
+  width: 100%;
+  td, th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  tr:nth-child(even){ background-color: #f2f2f2; }
+  tr:hover { background-color: #ddd; }
+  th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #22AA22;
+    color: white;
+  }
+  td.view-button {
+    text-align: center;
+  }
+}
