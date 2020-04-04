@@ -1,0 +1,223 @@
+{
+	"__source__": "https://minecraft.gamepedia.com/Server.properties",
+	"broadcast-rcon-to-ops": {
+		"type": "boolean",
+		"default": "true",
+		"description": "This is used for if you want all ops on the server to receive a message whenever a command is sent. Its useful set it to false if you expect command blocks or other players to issue base-game commands in chat. "
+	},
+	"view-distance": {
+		"type": "integer",
+		"default": "10",
+		"description": "Min/Max: 3/32. Sets the amount of world data the server sends the client, measured in chunks in each direction of the player (radius, not diameter). It determines the server-side viewing distance.\n10 is the default/recommended. If the player has major lag, this value is recommended to be reduced.\nNote: A value less than 9 has a big impact on mob spawning on the server, as noted in bug MC-2536."
+	},
+	"max-build-height": {
+		"type": "integer",
+		"default": "256",
+		"description": "The maximum height allowed for building. Terrain may still naturally generate above a low height limit."
+	},
+	"server-ip": {
+		"type": "string",
+		"default": "blank",
+		"description": "The player should set this if they want the server to bind to a particular IP. It is strongly recommended that the player leaves server-ip blank. This is useful for administrators on servers with multiple network interfaces. If unsure, leave blank."
+	},
+	"level-seed": {
+		"type": "string",
+		"default": "blank",
+		"description": "Add a seed for the player's world, as in Singleplayer."
+	},
+	"rcon.port": {
+		"type": "integer",
+		"default": "25575",
+		"description": "Sets the RCON network port. Permitted values are 1-65534 (on most systems, ports below 1024 may require Administrator/root access)."
+	},
+	"gamemode": {
+		"type": "string",
+		"default": "survival",
+		"description": "Defines the mode of gameplay. If a legacy gamemode number is specified, it is silently converted to a gamemode name: survival (0), creative (1), adventure (2), spectator (3)."
+	},
+	"server-port": {
+		"type": "integer",
+		"default": "25565",
+		"description": "Changes the port the server is hosting (listening) on. This port must be forwarded if the server is hosted in a network using NAT (if the player has a home router/firewall). Permitted values are 1-65534 (on most systems, ports below 1024 may require Administrator/root access)."
+	},
+	"allow-nether": {
+		"type": "boolean",
+		"default": "true",
+		"description": "Allows players to travel to the Nether."
+	},
+	"enable-command-block": {
+		"type": "boolean",
+		"default": "false",
+		"description": "Enables command blocks."
+	},
+	"enable-rcon": {
+		"type": "boolean",
+		"default": "false",
+		"description": "Enables remote access to the server console."
+	},
+	"enable-query": {
+		"type": "boolean",
+		"default": "false",
+		"description": "Enables GameSpy4 protocol server listener. Used to get information about server."
+	},
+	"op-permission-level": {
+		"type": "integer",
+		"default": "4",
+		"description": "Permitted values 1-4. Sets the default permission level for ops when using /op. All levels inherit abilities and commands from levels before them."
+	},
+	"prevent-proxy-connections": {
+		"type": "boolean",
+		"default": "false",
+		"description": "If the ISP/AS sent from the server is different from the one from Mojang's authentication server, the player is kicked."
+	},
+	"generator-settings": {
+		"type": "string",
+		"default": "blank",
+		"description": "The settings used to customize world generation."
+	},
+	"resource-pack": {
+		"type": "string",
+		"default": "blank",
+		"description": "Optional URI to a resource pack. The player may choose to use it. Note that (in some versions before 1.15.2), the \": \" and \"=\" characters need to be escaped with a backslash (\\), e.g. \"http\\://somedomain.com/somepack.zip?someparam\\=somevalue\". The resource pack may not have a larger file size than 50 MiB (≈ 50.4 MB). Note that download success or failure is logged by the client, and not by the server."
+	},
+	"level-name": {
+		"type": "string",
+		"default": "world",
+		"description": "The \"level-name\" value is used as the world name and its folder name. The player may also copy their saved game folder here, and change the name to the same as that folder's to load it instead. Characters such as ' (apostrophe) may need to be escaped by adding a backslash before them."
+	},
+	"rcon.password": {
+		"type": "string",
+		"default": "blank",
+		"description": "Sets the password for RCON: a remote console protocol that can allow other applications to connect and interact with a Minecraft server over the internet."
+	},
+	"player-idle-timeout": {
+		"type": "integer",
+		"default": "0",
+		"description": "If non-zero, players are kicked from the server if they are idle for more than that many minutes."
+	},
+	"motd": {
+		"type": "string",
+		"default": "A Minecraft Server",
+		"description": "This is the message that is displayed in the server list of the client, below the name. The MOTD supports color and formatting codes. The MOTD supports special characters, such as \"♥\". However, such characters must be converted to escaped Unicode form. An online converter can be found here: http://www.freeformatter.com/string-utilities.html#charinfo . If the MOTD is over 59 characters, the server list may report a communication error. You can create one at this link: https://mctools.org/motd-creator"
+	},
+	"query.port": {
+		"type": "integer",
+		"default": "25565",
+		"description": "Sets the port for the query server (see enable-query). Permitted values are 1-65534 (on most systems, ports below 1024 may require Administrator/root access)."
+	},
+	"force-gamemode": {
+		"type": "boolean",
+		"default": "false",
+		"description": "Force players to join in the default game mode."
+	},
+	"hardcore": {
+		"type": "boolean",
+		"default": "false",
+		"description": "If set to true, server difficulty is ignored and set to hard and players are set to spectator mode if they die."
+	},
+	"white-list": {
+		"type": "boolean",
+		"default": "false",
+		"description": "Enables a whitelist on the server. With a whitelist enabled, users not on the whitelist cannot connect. Intended for private servers, such as those for real-life friends or strangers carefully selected via an application process, for example. false: No white list is used. true: The file whitelist.json is used to generate the white list. Note: Ops are automatically whitelisted, and there is no need to add them to the whitelist."
+	},
+	"broadcast-console-to-ops": {
+		"type": "boolean",
+		"default": "true",
+		"description": "This is used for if you want all ops on the server to receive a message whenever a command is sent. Its useful set it to false if you expect command blocks or other players to issue base-game commands in chat."
+	},
+	"pvp": {
+		"type": "boolean",
+		"default": "true",
+		"description": "Enable PvP on the server. Players shooting themselves with arrows receive damage only if PvP is enabled."
+	},
+	"spawn-npcs": {
+		"type": "boolean",
+		"default": "true",
+		"description": "Determines whether villagers can spawn."
+	},
+	"generate-structures": {
+		"type": "boolean",
+		"default": "true",
+		"description": "Defines whether structures (such as villages) can be generated."
+	},
+	"spawn-animals": {
+		"type": "boolean",
+		"default": "true",
+		"description": "Determines if animals can spawn."
+	},
+	"snooper-enabled": {
+		"type": "boolean",
+		"default": "true",
+		"description": "Sets whether the server sends snoop data regularly to http://snoop.minecraft.net"
+	},
+	"difficulty": {
+		"type": "string",
+		"default": "easy",
+		"description": "Defines the difficulty (such as damage dealt by mobs and the way hunger and poison affects players) of the server. If a legacy difficulty number is specified, it is silently converted to a difficulty name: peaceful (0), easy (1), normal (2), hard (3)."
+	},
+	"function-permission-level": {
+		"type": "integer",
+		"default": "2",
+		"description": "Sets the default permission level for functions. Permitted values are 1-4 (same rules as op-permission-level)"
+	},
+	"network-compression-threshold": {
+		"type": "integer",
+		"default": "256",
+		"description": "By default it allows packets that are n-1 bytes big to go normally, but a packet of n bytes or more gets compressed down. So, a lower number means more compression but compressing small amounts of bytes might actually end up with a larger result than what went in. -1: disable compression entirely. 0: compress everything. Note: The Ethernet spec requires that packets less than 64 bytes become padded to 64 bytes. Thus, setting a value lower than 64 may not be beneficial. It is also not recommended to exceed the MTU, typically 1500 bytes. "
+	},
+	"level-type": {
+		"type": "string",
+		"default": "default",
+		"description": "Determines the type of map that is generated. default: Standard world with hills, valleys, water, etc. flat: A flat world with no features, can be modified with generator-settings. largebiomes: Same as default but all biomes are larger. amplified: Same as default but world-generation height limit is increased. buffet: Same as default unless generator-settings is set to a preset."
+	},
+	"spawn-monsters": {
+		"type": "boolean",
+		"default": "true",
+		"description": "Determines if monsters can spawn."
+	},
+	"max-tick-time": {
+		"type": "integer",
+		"default": "60000",
+		"description": "The maximum number of milliseconds a single tick may take before the server watchdog stops the server with the message, A single server tick took 60.00 seconds (should be max 0.05); Considering it to be crashed, server will forcibly shutdown. Once this criterion is met, it calls System.exit(1)."
+	},
+	"enforce-whitelist": {
+		"type": "boolean",
+		"default": "false",
+		"description": "Enforces the whitelist on the server. When this option is enabled, users who are not present on the whitelist (if it's enabled) get kicked from the server after the server reloads the whitelist file, if they are already online."
+	},
+	"use-native-transport": {
+		"type": "boolean",
+		"default": "true",
+		"description": "Linux server performance improvements: optimized packet sending/receiving on Linux."
+	},
+	"max-players": {
+		"type": "integer",
+		"default": "20",
+		"description": "The maximum number of players that can play on the server at the same time. Note that more players on the server consume more resources. Note also, op player connections are not supposed to count against the max players, but ops currently cannot join a full server. However, this can be changed by going to the file called ops.json in the player's server directory, opening it, finding the op that the player wants to change, and changing the setting called bypassesPlayerLimit to true (the default is false). This means that that op does not have to wait for a player to leave in order to join. Extremely large values for this field result in the client-side user list being broken."
+	},
+	"resource-pack-sha1": {
+		"type": "string",
+		"default": "blank",
+		"description": "Optional SHA-1 digest of the resource pack, in lowercase hexadecimal. It is recommended to specify this, because it is used to verify the integrity of the resource pack. Note: If the resource pack is any different, a yellow message \"Invalid sha1 for resource-pack-sha1\" appears in the console when the server starts. Due to the nature of hash functions, errors have a tiny probability of occurring, so this consequence has no effect."
+	},
+	"spawn-protection": {
+		"type": "integer",
+		"default": "16",
+		"description": "Determines the side length of the square spawn protection area as 2x+1. Setting this to 0 does not disable spawn protection, but protects the single block at the spawn point. A value of 1 protects a 3×3 square centered on the spawn point. 2 protects 5×5, 3 protects 7×7, etc. This option is not generated on the first server start and appears when the first player joins. If there are no ops set on the server, the spawn protection is disabled automatically."
+	},
+	"online-mode": {
+		"type": "boolean",
+		"default": "true",
+		"description": "Server checks connecting players against Minecraft account database. Set this to false only if the player's server is not connected to the Internet. Hackers with fake accounts can connect if this is set to false! If minecraft.net is down or inaccessible, no players can connect if this is set to true. Setting this variable to off purposely is called \"cracking\" a server, and servers that are present with online mode off are called \"cracked\" servers, allowing players with unlicensed copies of Minecraft to join."
+	},
+	"allow-flight": {
+		"type": "boolean",
+		"default": "false",
+		"description": "Allows users to use flight on the server while in Survival mode, if they have a mod that provides flight installed. With allow-flight enabled, griefers may become more common, because it makes their work easier. In Creative mode, this has no effect."
+	},
+	"max-world-size": {
+		"type": "integer",
+		"default": "29999984",
+		"description": "This sets the maximum possible size in blocks, expressed as a radius, that the world border can obtain. Setting the world border bigger causes the commands to complete successfully but the actual border does not move past this block limit. Setting the max-world-size higher than the default doesn't appear to do anything. Maximum: 29999984"
+	}
+}
