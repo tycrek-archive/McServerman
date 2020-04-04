@@ -48,7 +48,7 @@ function newServer() {
 	fetch(`/servers/new/${type}/${version}/${name.replace(/[^a-zA-Z0-9\.\-\_ ]/g, '')}`)
 		.then((response) => response.json())
 		.then((json) => {
-			console.log(json);
+			alert(json.success);
 			$('#new-server-submit').prop('disabled', false);
 		})
 		.catch((err) => alert(err));

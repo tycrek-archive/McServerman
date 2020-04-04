@@ -10,6 +10,7 @@ For now I'm only planning to add support for Vanilla and [PaperMC](https://paper
 
 - [x] Download Vanilla JAR
 - [x] Download [PaperMC](https://papermc.io/) (Spigot) JAR
+- [ ] Download Java 8 JRE for best compatibility
 - [ ] Whitelist manager
 - [ ] GUI `server.properties` editor with explanations/recommended settings
 - [ ] Upload/download/backup/restore Worlds
@@ -18,6 +19,7 @@ For now I'm only planning to add support for Vanilla and [PaperMC](https://paper
 - [ ] Web console with RCON
 - [ ] World upgrade for new versions (e.x. 1.14 -> 1.15)
 - [ ] Statistics with funky graphs
+- [ ] Player manager (whitelist/blacklist, ops, history, etc.)
 - [ ] Alerts (shutdown, player join, etc.)
 - [ ] System resource monitor
 - [ ] Wiki (installation, usage, etc.)
@@ -44,6 +46,8 @@ If you really want to contribute to this, sure, why not, go ahead.
 - [Mojang](https://www.mojang.com/) and [Markus Persson (Notch)](https://en.wikipedia.org/wiki/Markus_Persson) for making the best [lasagna recipe I have ever tasted](https://www.minecraft.net/en-us/)
 - [PaperMC](https://papermc.io/) for a fantastic third-party server. [PaperMC GitHub](https://github.com/PaperMC)
 - [VSCodium](https://vscodium.com/) because @#$% Microsoft.
+- [MCVersions.net](https://mcversions.net/) for providing download links for Server Jar files
+- [MCUUID](https://mcuuid.net/) for providing information on player UUID (assists in player operations before they have ever joined)
 
 ## Hotel?
 
