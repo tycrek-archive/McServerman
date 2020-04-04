@@ -1,1 +1,9 @@
-h2 Welcome!
+.col-8.home#server-list
+	button(onclick='LOAD_PAGE(PAGES.setup)')
+	h2 Servers
+	ul
+	each server in servers
+		li!= `${server.name} :: ${server.version} :: ${server.type}`
+.col-4
+	h2 Right Sidebar
+	p News?

@@ -59,6 +59,9 @@ function setRoutes() {
 			});
 		});
 	});
+	app.get('/pages/setup', (req, res, next) => {
+		res.render('setup');
+	});
 
 	//// Server management routes //// MUST return json type
 	// NEW SERVER
@@ -176,7 +179,7 @@ function signEula(eulaPath) {
 function writeNewConfig(name, version, type, directory, jarFile) {
 	log.info(`Writing NEW configuration to ${USER_CONFIG}`);
 	return new Promise((resolve, reject) => {
-		let newConfig = { "servers": [] };
+		let config = { "servers": [] };
 		let server = { // JSON object, not JavaScript object!
 			"name": name,
 			"version": version,
@@ -185,9 +188,12 @@ function writeNewConfig(name, version, type, directory, jarFile) {
 			"jarFile": jarFile,
 			"lastAccess": moment().valueOf() // For sorting
 		};
-		newConfig.servers.push(server);
-		fs.ensureFile(USER_CONFIG)
-			.then(() => fs.writeJson(USER_CONFIG, newConfig, { spaces: '\t' }))
+		fs.pathExists(USER_CONFIG)
+			.then((exists) => exists ? fs.readJson(USER_CONFIG) : config)
+			.then((mConfig) => config = mConfig)
+			.then(() => config.servers.push(server))
+			.then(() => fs.ensureFile(USER_CONFIG))
+			.then(() => fs.writeJson(USER_CONFIG, config, { spaces: '\t' }))
 			.then(() => log.info('Done writing config!'))
 			.then(() => resolve())
 			.catch((err) => reject(err));

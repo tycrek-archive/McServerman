@@ -1,18 +1,11 @@
 const PAGES = {
 	home: {
 		url: '/pages/home',
-		callback: () => {
-			$('input#vanilla').on('change', () => {
-				$('option.vanilla-versions').show();
-				$('.papermc-versions').hide();
-				$('.vanilla-versions[value="1.15.2"]').prop('selected', true)
-			});
-			$('input#papermc').on('change', () => {
-				$('option.vanilla-versions').hide();
-				$('.papermc-versions').show();
-				$('.papermc-versions[value="1.15"]').prop('selected', true)
-			});
-		}
+		callback: setupRadioButtonVersionSwap
+	},
+	setup: {
+		url: '/pages/setup',
+		callback: setupRadioButtonVersionSwap
 	}
 }
 
@@ -25,12 +18,14 @@ function __MAIN__() {
 }
 
 function LOAD_PAGE(page) {
+	$('#primary').fadeOut(() => $('#primary').html(`<center><br><br><br><br><h1>Loading...</h1></center>`));
+	$('#primary').fadeIn();
 	fetch(page.url)
 		.then((response) => response.text())
 		.then((body) => {
-			$('#primary').html(body);
+			$('#primary').fadeOut(() => $('#primary').html(body));
+			$('#primary').fadeIn(() => page.callback());
 		})
-		.then(() => page.callback())
 		.catch((err) => alert('Error!'));
 }
 
@@ -53,15 +48,30 @@ function newServer() {
 	fetch(`/servers/new/${type}/${version}/${name.replace(/[^a-zA-Z0-9\.\-\_ ]/g, '')}`)
 		.then((response) => response.json())
 		.then((json) => {
-			alert(json.success);
 			$('#new-server-submit').prop('disabled', false);
 			$('input[name="server_type"').prop('disabled', false);
 			$('#server_version').prop('disabled', false);
 			$('#server_name').prop('disabled', false);
 
 			$('#new-server-submit').val('Create server');
+
+			if (json.success == true) LOAD_PAGE(PAGES.home);
+			else alert('Failed, please try again!');
 		})
 		.catch((err) => alert(err));
+}
+
+function setupRadioButtonVersionSwap() {
+	$('input#vanilla').on('change', () => {
+		$('option.vanilla-versions').show();
+		$('.papermc-versions').hide();
+		$('.vanilla-versions[value="1.15.2"]').prop('selected', true)
+	});
+	$('input#papermc').on('change', () => {
+		$('option.vanilla-versions').hide();
+		$('.papermc-versions').show();
+		$('.papermc-versions[value="1.15"]').prop('selected', true)
+	});
 }
 
 
