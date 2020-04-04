@@ -6,12 +6,13 @@ I created this because I'm officially annoyed with managing my various servers t
 
 For now I'm only planning to add support for Vanilla and [PaperMC](https://papermc.io/) servers. If there is interest I may add more in the future.
 
-## Roadmap/Todo
+## Features/Todo
 
 - [x] Download Vanilla Jar
 - [x] Download [PaperMC](https://papermc.io/) (Spigot) Jar
+- [x] Automatically "sign" EULA
 - [ ] Download Java 8 JRE for best compatibility
-- [ ] Whitelist manager
+- [ ] Player manager (whitelist/blacklist, ops, history, etc.)
 - [ ] GUI `server.properties` editor with explanations/recommended settings
 - [ ] Upload/download/backup/restore Worlds
 - [ ] Install plugins (Paper/Spigot)
@@ -19,7 +20,6 @@ For now I'm only planning to add support for Vanilla and [PaperMC](https://paper
 - [ ] Web console with RCON
 - [ ] World upgrade for new versions (e.x. 1.14 -> 1.15)
 - [ ] Statistics with funky graphs
-- [ ] Player manager (whitelist/blacklist, ops, history, etc.)
 - [ ] Alerts (shutdown, player join, etc.)
 - [ ] System resource monitor
 - [ ] Wiki (installation, usage, etc.)
