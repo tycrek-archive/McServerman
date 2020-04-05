@@ -32,6 +32,8 @@ const DOWNLOAD_LINKS = {
 };
 const UUID_LINK = 'https://mcuuid.net/?q=';
 
+var ACTIVE_SERVERS = {};
+
 
 /* Express app setup */
 app.use(express.static(path.join(__dirname, 'static')));
@@ -97,7 +99,7 @@ function setRoutes() {
 			.then(() => fs.ensureDir(destPath))
 			.then(() => type === 'vanilla' ? getVanillaUrl(version) : DOWNLOAD_LINKS.paper[version])
 			.then((url) => downloadJar(url, dest))
-			.then(() => runJar(destPath, destFile))
+			.then(() => runJar(destPath, destFile, suuid))
 			.then(() => signEula(path.join(destPath, 'eula.txt')))
 			.then(() => writeNewConfig(name, version, type, suuid, destPath, destFile))
 			.then(() => success = true)
@@ -119,6 +121,32 @@ function setRoutes() {
 			.then(() => res.send({ msg: 'Success!' }))
 			.catch((err) => next(err));
 	});
+	// Start server
+	app.get('/servers/start/:suuid', (req, res, next) => {
+		let suuid = req.params.suuid;
+
+		if (ACTIVE_SERVERS.hasOwnProperty(suuid)) return res.send({ msg: 'Server already running!', success: false });
+
+		fs.readJson(USER_CONFIG)
+			.then((json) => {
+				for (let i = 0; i < json.servers.length; i++) {
+					if (json.servers[i].suuid === suuid) return json.servers[i];
+				}
+			})
+			.then((server) => runJar(server.directory, server.jarFile, suuid, false))
+			.then(() => res.send({ msg: 'Server started!', success: true }))
+			.catch((err) => res.send({ msg: `Server failed to start: ${err}`, success: false }));
+	});
+	app.get('/servers/stop/:suuid', (req, res, next) => {
+		let suuid = req.params.suuid;
+
+		if (!ACTIVE_SERVERS.hasOwnProperty(suuid)) return res.send({ msg: 'Server not running!', success: false });
+
+		let stopped = ACTIVE_SERVERS[suuid].stdin.write('stop\n');
+		ACTIVE_SERVERS[suuid].stdin.end();
+		if (stopped) res.send({ msg: 'Server stopped!', success: true });
+		else res.send({ msg: `Server failed to stop: ${err}`, success: false });
+	})
 
 
 	//// ERRORS
@@ -175,18 +203,23 @@ function downloadJar(source, dest) {
 }
 
 // Runs the specified Jar file TODO: Runtime options
-function runJar(directory, jar) {
+function runJar(directory, jar, suuid, wait = true) {
 	log.info(`Running Jar file in ${directory}`);
 	return new Promise((resolve, reject) => {
-		let java = spawn('java', ['-jar', jar], { cwd: directory, windowsHide: true });
-		java.stdout.on('data', (data) => log.info(`stdout: ${data}`));
-		java.stderr.on('data', (data) => log.error(`stderr: ${data}`));
-		java.on('close', (code) => {
-			let msg = `Child process exited with code ${code}`;
+		let java = spawn('java', ['-jar', jar, 'nogui'], { cwd: directory, windowsHide: true, detached: true });
+
+		ACTIVE_SERVERS[suuid] = java;
+
+		java.stdout.on('data', (data) => log.info(`stdout [${java.pid}]: ${data}`));
+		java.stderr.on('data', (data) => log.error(`stderr [${java.pid}]: ${data}`));
+		if (wait) java.on('close', (code) => {
+			delete ACTIVE_SERVERS[suuid];
+			let msg = `Child process [${java.pid}] exited with code ${code}`;
 			code != 0
 				? reject(log.warn(msg))
 				: resolve(log.info(msg));
 		});
+		else resolve();
 	});
 }
 
@@ -276,3 +309,5 @@ function getPlayerUuid(name) {
 }
 
 //TODO: Add https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/ when implementing running servers
+
+//TODO: Update last access date

@@ -97,5 +97,26 @@ function saveProperties(suuid) {
 		.then(() => LOAD_PAGE(`/pages/server/${suuid}`, true));
 }
 
+function startStopServer(suuid) {
+	let status = $('#server-status').text();
+	if (status !== 'Online') {
+		fetch(`/servers/start/${suuid}`)
+			.then((response) => response.json())
+			.then((json) => {
+				if (!json.success) throw Error(json.msg);
+				$('#server-status').html('Online');
+			})
+			.catch((err) => alert(err));
+	} else {
+		fetch(`/servers/stop/${suuid}`)
+			.then((response) => response.json())
+			.then((json) => {
+				if (!json.success) throw Error(json.msg);
+				$('#server-status').html('Offline');
+			})
+			.catch((err) => alert(err));
+	}
+}
+
 
 __MAIN__(); // MUST be at end of script!
