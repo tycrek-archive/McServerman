@@ -90,9 +90,11 @@ function saveProperties(suuid) {
 		let value = element.type === 'checkbox' ? element.checked.toString() : element.value;
 		properties += `${property}=${value}\n`;
 	});
-	fetch(`/servers/update/server.properties/${suuid}`, { method: 'POST', body: { json: properties } })//TODO: Base64ify
-		.then((response) => response.json)
-		.then((json) => alert(json.msg));
+	fetch(`/servers/update/server.properties/${suuid}/${btoa(unescape(encodeURIComponent(properties)))}`) // https://stackoverflow.com/a/45844934
+		.then((response) => response.json())
+		.then((json) => alert(json.msg))
+		.then(() => $('button').prop('disabled', false))
+		.then(() => LOAD_PAGE(`/pages/server/${suuid}`, true));
 }
 
 

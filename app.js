@@ -106,7 +106,18 @@ function setRoutes() {
 	});
 	// Update server.properties
 	app.get('/servers/update/server.properties/:suuid/:data', (req, res, next) => {
-		//TODO: base64defy
+		let suuid = req.params.suuid;
+		let properties = Buffer.from(req.params.data, 'base64').toString(); // for the love of god do NOT change this
+
+		fs.readJson(USER_CONFIG)
+			.then((json) => {
+				for (let i = 0; i < json.servers.length; i++) {
+					if (json.servers[i].suuid === suuid) return json.servers[i];
+				}
+			})
+			.then((server) => fs.writeFile(path.join(server.directory, 'server.properties'), properties))
+			.then(() => res.send({ msg: 'Success!' }))
+			.catch((err) => next(err));
 	});
 
 
