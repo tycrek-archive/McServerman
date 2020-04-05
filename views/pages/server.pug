@@ -10,7 +10,7 @@
 			td#server-status Unknown
 		tr
 			td Players
-			td: code 0
+			td: code#server-players 0
 		tr
 			td Uptime
 			td Unknown
@@ -64,3 +64,6 @@
 						small: em No description available
 	br
 	br
+
+script.
+	var statusInterval = setInterval(queryServer, 5000);

@@ -21,6 +21,7 @@ function __MAIN__() {
 }
 
 function LOAD_PAGE(page, override = false) {
+	try { clearInterval(statusInterval); } catch { };
 	$('#primary').fadeOut(() => $('#primary').html(`<center><br><br><br><br><h1>Loading...</h1></center>`));
 	$('#primary').fadeIn();
 	fetch(!override ? page.url : page)
@@ -116,6 +117,18 @@ function startStopServer(suuid) {
 			})
 			.catch((err) => alert(err));
 	}
+}
+
+function queryServer() {
+	let suuid = $('#suuid').text();
+	fetch(`/servers/query/${suuid}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) throw Error('Failed');
+			$('#server-status').html('Online'); //TODO: play with states from https://github.com/sonicsnes/node-gamedig
+			$('#server-players').html(`${json.state.players.length}/${json.state.maxplayers}`); //FIXME: Length shows too many players
+		})
+		.catch((err) => $('#server-status').html('Offline'));
 }
 
 

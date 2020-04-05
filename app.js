@@ -8,6 +8,7 @@ const cheerio = require('cheerio');
 const { spawn } = require('child_process');
 const moment = require('moment');
 const uuid = require('uuid').v4;
+const Gamedig = require('gamedig');
 
 // Express
 const express = require('express');
@@ -137,6 +138,7 @@ function setRoutes() {
 			.then(() => res.send({ msg: 'Server started!', success: true }))
 			.catch((err) => res.send({ msg: `Server failed to start: ${err}`, success: false }));
 	});
+	// Stop server //TODO: save active servers to a file
 	app.get('/servers/stop/:suuid', (req, res, next) => {
 		let suuid = req.params.suuid;
 
@@ -146,7 +148,40 @@ function setRoutes() {
 		ACTIVE_SERVERS[suuid].stdin.end();
 		if (stopped) res.send({ msg: 'Server stopped!', success: true });
 		else res.send({ msg: `Server failed to stop: ${err}`, success: false });
-	})
+	});
+	// Query a server
+	app.get('/servers/query/:suuid', (req, res, next) => {
+		let suuid = req.params.suuid;
+		let response = { success: true };
+		let host = '';
+		let port = -1;
+
+		fs.readJson(USER_CONFIG)
+			.then((json) => {
+				for (let i = 0; i < json.servers.length; i++) {
+					if (json.servers[i].suuid === suuid) return json.servers[i];
+				}
+			})
+			.then((server) => server.directory)
+			.then((directory) => fs.readFile(path.join(directory, 'server.properties')))
+			.then((bytes) => bytes.toString())
+			.then((properties) => {
+				let lines = properties.split('\n');
+				for (i = 0; i < lines.length; i++) { //TODO: Improve to match query port instead
+					if (lines[i].startsWith('server-port')) port = lines[i].split('=')[1];
+					if (lines[i].startsWith('server-ip')) host = lines[i].split('=')[1];
+				}
+				if (port == -1) throw Error('Unable to locate server, does server.properties file exist?');
+			})
+			.then(() => Gamedig.query({
+				type: 'minecraft',
+				host: host === '' ? '0.0.0.0' : host,
+				port: port
+			}))
+			.then((state) => response.state = state)
+			.catch((err) => (log.debug(err), response.success = false))
+			.finally(() => res.send(response));
+	});
 
 
 	//// ERRORS
