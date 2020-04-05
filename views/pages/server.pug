@@ -34,7 +34,7 @@
 .col-12.server-panels#server-properties-panel
 	br
 	br
-	h3: button: strong Save changes
+	h3: button(onclick=`saveProperties('${__server__.suuid}')`)#save-properties: strong Save changes
 	table#server-properties-table
 		caption: code server.properties
 		tr

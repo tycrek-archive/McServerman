@@ -104,6 +104,10 @@ function setRoutes() {
 			.catch((err) => log.error(err))
 			.finally(() => res.type('json').send({ success: success }));
 	});
+	// Update server.properties
+	app.get('/servers/update/server.properties/:suuid/:data', (req, res, next) => {
+		//TODO: base64defy
+	});
 
 
 	//// ERRORS

@@ -77,5 +77,23 @@ function setupRadioButtonVersionSwap() {
 	});
 }
 
+function saveProperties(suuid) {
+	let properties = '';
+
+	// disable buttons so user does not interfere with saving
+	$('button').prop('disabled', true);
+	$('button#save-properties').html('<strong>Please wait</strong>');
+
+	// $('input.server-properties#allow-nether').is(":checked")
+	$('input.server-properties').each((_index, element) => {
+		let property = element.id;
+		let value = element.type === 'checkbox' ? element.checked.toString() : element.value;
+		properties += `${property}=${value}\n`;
+	});
+	fetch(`/servers/update/server.properties/${suuid}`, { method: 'POST', body: { json: properties } })//TODO: Base64ify
+		.then((response) => response.json)
+		.then((json) => alert(json.msg));
+}
+
 
 __MAIN__(); // MUST be at end of script!
