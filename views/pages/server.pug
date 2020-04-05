@@ -66,4 +66,7 @@
 	br
 
 script.
+	// Run queryServer ONCE before loading the interval.
+	// This way we don't have "unknown" sitting around for 5 seconds.
+	queryServer();
 	var statusInterval = setInterval(queryServer, 5000);
