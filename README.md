@@ -14,7 +14,7 @@ For now I'm only planning to add support for Vanilla and [PaperMC](https://paper
 - [x] Manage multiple servers (only lists right now, no editing function yet)
 - [ ] Download Java 8 JRE for best compatibility
 - [ ] Player manager (whitelist/blacklist, ops, history, etc.)
-- [ ] GUI `server.properties` editor with explanations/recommended settings
+- [x] GUI `server.properties` editor with explanations/recommended settings
 - [ ] Upload/download/backup/restore Worlds
 - [ ] Install plugins (Paper/Spigot)
 - [ ] Auto port-forward with UPnP (or a guide on port forwarding)
