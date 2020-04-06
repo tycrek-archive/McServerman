@@ -180,9 +180,8 @@ function setRoutes() {
 			.then(() => writeUserConfig(name, version, type, suuid, destPath, destFile))
 
 			// Respond to the client
-			.then(() => buildServerResponse(true, ''))
-			.catch((err) => buildServerResponse(false, err))
-			.finally((response) => res.send(response));
+			.then(() => res.send(buildServerResponse(true, '')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
 	/// Update server.properties
@@ -198,9 +197,8 @@ function setRoutes() {
 
 		getServerFromConfig(suuid)
 			.then((server) => fs.writeFile(path.join(server.directory, 'server.properties'), properties))
-			.then(() => buildServerResponse(true, 'Success!'))
-			.catch((err) => buildServerResponse(false, err))
-			.finally((response) => res.send(response));
+			.then(() => res.send(buildServerResponse(true, 'Success!')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
 	/// Start server
@@ -213,9 +211,8 @@ function setRoutes() {
 
 		getServerFromConfig(suuid)
 			.then((server) => runJar(server.directory, server.jarFile, suuid, false))
-			.then(() => buildServerResponse(true, 'Server started!'))
-			.catch((err) => buildServerResponse(false, err))
-			.finally((response) => res.send(response));
+			.then(() => res.send(buildServerResponse(true, 'Server started!')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
 	/// Stop server
@@ -261,10 +258,9 @@ function setRoutes() {
 				host: host === '' ? '0.0.0.0' : host,
 				port: port
 			}))
-			.then((state) => buildServerResponse(true, 'Online', state))
+			.then((state) => res.send(buildServerResponse(true, 'Online', state)))
 			// Print a debug log and DON'T pass the actual error since the console would be overcrowded otherwise
-			.catch((err) => (log.debug(err), buildServerResponse(false, err.message, err)))
-			.finally((response) => res.send(response));
+			.catch((err) => (log.debug(err), res.send(buildServerResponse(false, err.message, err))));
 	});
 
 
