@@ -113,7 +113,7 @@ function setRoutes() {
 	// installtion. Otherwise, load the config and return it to the client.
 	app.get('/pages/home', (_req, res, next) => {
 		fs.pathExists(USER_CONFIG)
-			.then((exists) => fs.readJson(exists ? USER_CONFIG : {}))
+			.then((exists) => exists ? fs.readJson(USER_CONFIG) : {})
 			.then((config) => res.render(Object.keys(config).length !== 0 ? 'home' : 'setup', config))
 			.catch((err) => next(err));
 	});
