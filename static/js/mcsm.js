@@ -109,7 +109,7 @@ function saveProperties(suuid) {
 	// HUGE thanks to https://stackoverflow.com/a/45844934 for helping me figure out how to encode stuff properly.
 	fetch(`/servers/update/server.properties/${suuid}/${btoa(unescape(encodeURIComponent(properties)))}`)
 		.then((response) => response.json())
-		.then((json) => alert(json.msg))
+		.then((json) => alert(json.message.message))
 		.then(() => $('button').prop('disabled', false))
 		.then(() => LOAD_PAGE(`/pages/server/${suuid}`, true));
 }
@@ -122,7 +122,7 @@ function startStopServer(suuid) {
 		fetch(`/servers/start/${suuid}`)
 			.then((response) => response.json())
 			.then((json) => {
-				if (!json.success) throw Error(json.msg);
+				if (!json.success) throw Error(json.message.message);
 				else status.html('Online');
 			})
 			.catch((err) => alert(err));
@@ -130,7 +130,7 @@ function startStopServer(suuid) {
 		fetch(`/servers/stop/${suuid}`)
 			.then((response) => response.json())
 			.then((json) => {
-				if (!json.success) throw Error(json.msg);
+				if (!json.success) throw Error(json.message.message);
 				else status.html('Offline');
 			})
 			.catch((err) => alert(err));

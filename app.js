@@ -457,8 +457,8 @@ function getServerProperties(server) {
 // If the request has an error, we can pass that error as the "message" so we
 // can print it and attach it without messing around with overloaded functions. I think?
 function buildServerResponse(s, m, d = {}) {
-	if (typeof (m) === typeof (Error)) (log.error(m), d.error = m);
-	return { success: s, msg: m, data: d };
+	if (typeof (m) === typeof (new Error)) (log.error(m), d.error = m);
+	return { success: s, message: m, data: d };
 }
 
 // Gets a player UUID for whitelist/blacklist/op/etc. operations before the player has joined the server.
