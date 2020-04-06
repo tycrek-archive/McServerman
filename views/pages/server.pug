@@ -1,5 +1,5 @@
 .col-3.server-panels#server-info-panel
-	h1= __server__.name
+	h1(suuid=__server__.suuid)#server-title= __server__.name
 	table#server-stats-table
 		tr
 			td(colspan=2)!= (__server__.type === 'vanilla' ? 'Vanilla' : 'PaperMC') + ' (' + __server__.version + ')'
@@ -66,4 +66,7 @@
 	br
 
 script.
+	// Run queryServer ONCE before loading the interval.
+	// This way we don't have "unknown" sitting around for 5 seconds.
+	queryServer();
 	var statusInterval = setInterval(queryServer, 5000);
