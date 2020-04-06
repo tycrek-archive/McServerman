@@ -224,12 +224,22 @@ function setRoutes() {
 		if (!ACTIVE_SERVERS.hasOwnProperty(suuid))
 			return res.send(buildServerResponse(false, Error('Server not running!')));
 
-		// Send the 'stop' command to the Jar with stdin
-		let stopped = ACTIVE_SERVERS[suuid].stdin.write('stop\n');
-		ACTIVE_SERVERS[suuid].stdin.end();
-
-		// Respond to the client
-		res.send(buildServerResponse(stopped, stopped ? 'Server stopped!' : 'Server failed to stop!'));
+		getServerFromConfig(suuid)
+			.then((server) => getServerProperties(server))
+			.then((properties) => properties.properties['rcon.password'])
+			.then((password) => {
+				// Send the 'stop' command to the Jar with RCON
+				//let stopped = ACTIVE_SERVERS[suuid].stdin.write('stop\n');
+				//ACTIVE_SERVERS[suuid].stdin.end();
+				let conn = new (require('rcon'))('0.0.0.0', 25575, password);
+				conn.connect();
+				conn.on('auth', () => conn.send('stop'));
+				conn.on('response', (str) => {
+					conn.disconnect();
+					res.send(buildServerResponse(true, str));
+				});
+			})
+			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
 	/// Query a (hopefully running) server
