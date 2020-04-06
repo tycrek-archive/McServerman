@@ -140,7 +140,7 @@ function startStopServer(suuid) {
 // Ask McServerman server to query the Minecraft server so we can see if it is actually online
 // TODO: Make this work from the homepage maybe?
 function queryServer() {
-	let suuid = $('#suuid').text();
+	let suuid = $('#server-title').attr('suuid');
 
 	fetch(`/servers/query/${suuid}`)
 		.then((response) => response.json())
