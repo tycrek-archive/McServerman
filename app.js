@@ -332,20 +332,20 @@ function runJar(directory, jar, suuid, wait = true) {
 		ACTIVE_SERVERS[suuid] = java;
 
 		// Print stdout and stderr
-		java.stdout.on('data', (out) => log.info(`[${java.pid}] stdout: ${out.trim()}`));
-		java.stderr.on('data', (err) => log.error(`[${java.pid}] stderr: ${err.trim()}`));
+		java.stdout.on('data', (out) => log.info(`[${java.pid}] stdout: ${out.toString().trim()}`));
+		java.stderr.on('data', (err) => log.error(`[${java.pid}] stderr: ${err.toString().trim()}`));
 
 		// This is only called if we wait for the server to exit.
 		// This typically only happens on first time run to generate the EULA and server.properties
-		if (wait) java.on('close', (exitCode) => {
+		java.on('close', (exitCode) => {
 
 			// Make sure we delete it from the active servers since it is no longer active
 			delete ACTIVE_SERVERS[suuid];
 
 			let msg = `Child process [${java.pid}] exited with code ${exitCode}`;
-			exitCode != 0 ? reject(log.warn(msg)) : resolve(log.info(msg));
+			wait ? (exitCode != 0 ? reject(log.warn(msg)) : resolve(log.info(msg))) : (exitCode != 0 ? log.warn(msg) : log.info(msg));
 		});
-		else resolve();
+		if (!wait) resolve();
 	});
 }
 
