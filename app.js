@@ -193,6 +193,9 @@ function setRoutes() {
 		let suuid = req.params.suuid;
 		let properties = Buffer.from(req.params.data, 'base64').toString(); // for the love of god do NOT change this
 
+		properties = properties.replace('enable-rcon=false', 'enable-rcon=true');
+		properties = properties.replace('enable-query=false', 'enable-query=true');
+
 		getServerFromConfig(suuid)
 			.then((server) => fs.writeFile(path.join(server.directory, 'server.properties'), properties))
 			.then(() => buildServerResponse(true, 'Success!'))
