@@ -389,7 +389,7 @@ function refreshActiveServers() {
 						})
 						.catch((err) => {
 							log.warn(err);
-							log.warn('The above error is OK! It simply means the server is not running yet.');
+							log.warn('The above warning is OK! It simply means the server is not running yet.');
 							count++;
 						})
 						.finally(() => count == numServers && resolve());
@@ -459,7 +459,7 @@ function runJar(directory, jar, suuid, wait = true, useExperimentalFlags = true)
 				let options = { cwd: directory, windowsHide: true, detached: true };
 
 				// Insert experimental flags if necessary
-				useExperimentalFlags && args.splice(0, 0, buildExperimentalFlags(version));
+				args = useExperimentalFlags ? buildExperimentalFlags(version).concat(args) : args;
 
 				// Spawn the subprocess and...
 				let java = spawn(bin, args, options);
@@ -632,7 +632,7 @@ function buildExperimentalFlags(version) {
 
 	// Set up inital flags
 	let ramFlag = `-Xms${dedicatedRam}G -Xmx${dedicatedRam}G`;
-	let flags = '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow -XX:+AlwaysPreTouch  -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=8 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -Dusing.aikars.flags=true -Daikars.new.flags=true';
+	let flags = '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=8 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -Dusing.aikars.flags=true -Daikars.new.flags=true';
 
 	// Adjust flags for more than 12GB dedicated RAM
 	if (dedicatedRam > 12) {
@@ -642,14 +642,14 @@ function buildExperimentalFlags(version) {
 		flags = flags.replace('-XX:G1ReservePercent=20', '-XX:G1ReservePercent=15');
 		flags = flags.replace('-XX:InitiatingHeapOccupancyPercent=15', '-XX:InitiatingHeapOccupancyPercent=20');
 	}
-
 	// Improve GC logging for certain Java version
+	if (version >= 8 && version <= 10) flags += ' -Xloggc:gc.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=1M';
+	if (version == 8) flags += ' -XX:+UseLargePagesInMetaspace';
+
 	// NOTE: java 11+ is purposely broken as I cannot guarantee stability
-	if ('java=8-10' === 'this will NOT work') flags += ' -Xloggc:gc.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=1M';
-	if ('java=8' === 'this will NOT work') flags += ' -XX:+UseLargePagesInMetaspace';
 	if ('java=11+' === 'this will NOT work') flags += ' -Xlog:gc*:logs/gc.log:time,uptime:filecount=5,filesize=1M';
 
-	return `${ramFlag} ${flags}`;
+	return `${ramFlag} ${flags}`.split(' ');
 }
 
 // Get the path of Java 8 installed on the system (hopefully)
@@ -672,7 +672,7 @@ function getJavaPath() {
 				for (let i = 0; i < files.length; i++)
 					if (files[i].path.endsWith('/java')) return files[i];
 			})
-			.then((file) => resolve(file))
+			.then((file) => resolve(file.path))
 			.catch((err) => reject(err));
 	});
 }
@@ -689,21 +689,17 @@ function walkDir(dir) {
 
 function getJavaVersionFromBin(bin) {
 	return new Promise((resolve, reject) => {
-		let args = ['-jar', jar, 'nogui'];
-		let options = { cwd: directory, windowsHide: true, detached: true };
+		let args = ['-version'];
+		let options = { windowsHide: true, detached: true };
 		let java = spawn(bin, args, options);
 
 		let output = '';
 
+		// For some reason, -version prints to stderr. Because of this, we
+		// can't print errors so instead we append it to output.
 		java.stdout.on('data', (out) => output += out.toString().trim());
-		java.stderr.on('data', (err) => log.error(`[${java.pid}] stderr: ${err.toString().trim()}`));
-		java.on('close', (exitCode) => {
-			let msg = `Child process [${java.pid}] exited with code ${exitCode}`;
-			log.info(msg);
-			let version = -1;
-			if (output.includes('1.8.')) version = 8;
-			exitCode != 0 ? reject() : resolve(version);
-		});
+		java.stderr.on('data', (err) => output += err.toString().trim());
+		java.on('close', (exitCode) => exitCode != 0 ? reject() : resolve(output.includes('1.8.') ? 8 : -1));
 	})
 }
 
