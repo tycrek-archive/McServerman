@@ -11,7 +11,7 @@ For now I'm only planning to add support for Vanilla and [PaperMC](https://paper
 - [x] Download Vanilla Jar
 - [x] Download [PaperMC](https://papermc.io/) (Spigot) Jar
 - [x] Automatically "sign" EULA
-- [x] Manage multiple servers (only lists right now, no editing function yet)
+- [x] Manage multiple servers (can only start/stop and edit `server.properties`)
 - [ ] Download Java 8 JRE for best compatibility
 - [x] Run Jar using Java 8 JRE (currently only works on Linux)
 - [ ] Player manager (whitelist/blacklist, ops, history, etc.)
@@ -28,7 +28,7 @@ For now I'm only planning to add support for Vanilla and [PaperMC](https://paper
 - [ ] Bedrock support
 - [ ] Password authentication
 - [ ] OAuth authentication (maybe)
-- [ ] Snapshot servers
+- [ ] [Snapshot](https://minecraft.gamepedia.com/Tutorials/How_to_install_a_snapshot) servers
 - *I'll update this list with more when I think of new features*
 
 ## Installation
