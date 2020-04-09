@@ -109,7 +109,7 @@ function saveProperties(suuid) {
 	// HUGE thanks to https://stackoverflow.com/a/45844934 for helping me figure out how to encode stuff properly.
 	fetch(`/servers/update/server.properties/${suuid}/${btoa(unescape(encodeURIComponent(properties)))}`)
 		.then((response) => response.json())
-		.then((json) => alert(json.message.message))
+		.then((json) => alert(json.message))
 		.then(() => $('button').prop('disabled', false))
 		.then(() => LOAD_PAGE(`/pages/server/${suuid}`, true));
 }

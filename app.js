@@ -315,6 +315,7 @@ function setRoutes() {
 				// TODO: use server IP and port from configuration
 				let conn = new (require('rcon'))('0.0.0.0', 25575, password);
 				conn.connect();
+				conn.on('error', (err) => log.warn(err));
 				conn.on('auth', () => conn.send('stop'));
 				conn.on('response', (str) => {
 					conn.disconnect();
