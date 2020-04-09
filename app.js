@@ -66,7 +66,6 @@ const PLAYER_UUID_LINK = 'https://mcuuid.net/?q=';
 
 /// ACTIVE_SERVERS
 // Stores the subprocess object created from "spawning" a Jar file.
-// TODO: Write to a file for when McSm crashes or restarts
 var ACTIVE_SERVERS = {};
 
 
