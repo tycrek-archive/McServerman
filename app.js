@@ -84,6 +84,9 @@ app.set('view engine', 'pug');
 // Set our Express routes. app is globally set so we do not need to pass it.
 setRoutes();
 
+// Load server configs and import any active servers
+refreshActiveServers();
+
 // Run the app!
 app.listen(PORT, HOST, () => log.info(`Server hosted on ${HOST}:${PORT}`));
 
@@ -229,13 +232,12 @@ function setRoutes() {
 			.then((properties) => properties.properties['rcon.password'])
 			.then((password) => {
 				// Send the 'stop' command to the Jar with RCON
-				//let stopped = ACTIVE_SERVERS[suuid].stdin.write('stop\n');
-				//ACTIVE_SERVERS[suuid].stdin.end();
 				let conn = new (require('rcon'))('0.0.0.0', 25575, password);
 				conn.connect();
 				conn.on('auth', () => conn.send('stop'));
 				conn.on('response', (str) => {
 					conn.disconnect();
+					delete ACTIVE_SERVERS[suuid];
 					res.send(buildServerResponse(true, str));
 				});
 			})
@@ -263,11 +265,7 @@ function setRoutes() {
 				}
 				if (port == -1) throw Error('Unable to locate server, does server.properties file exist?');
 			})
-			.then(() => Gamedig.query({
-				type: 'minecraft',
-				host: host === '' ? '0.0.0.0' : host,
-				port: port
-			}))
+			.then(() => queryServer(host, port))
 			.then((state) => res.send(buildServerResponse(true, 'Online', state)))
 			// Print a debug log and DON'T pass the actual error since the console would be overcrowded otherwise
 			.catch((err) => (log.debug(err), res.send(buildServerResponse(false, err.message, err))));
@@ -284,6 +282,40 @@ function setRoutes() {
 }
 
 //// Functions ////
+
+// Refresh any active Minecraft servers when McSm is launched.
+// This helps because if McSm crashes, Minecraft servers stay
+// online. ACTIVE_SERVERS won't have a subprocess object though.
+function refreshActiveServers() {
+	return new Promise((resolve, reject) => {
+		let numServers;
+		let count;
+		fs.pathExists(USER_CONFIG)
+			.then((exists) => {
+				if (!exists) throw Error('No valid User Config found!');
+				else return;
+			})
+			.then(() => fs.readJson(USER_CONFIG))
+			.then((config) => {
+				numServers = config.servers.length;
+				config.servers.forEach((server) => {
+					getServerProperties(server)
+						.then((properties) => queryServer(properties['server-ip'], properties['query.port']))
+						.then((_state) => {
+							count++;
+							ACTIVE_SERVERS[server.suuid] = { nonjar: true };
+						})
+						.catch((err) => {
+							log.warn(err);
+							log.warn('The above error is OK! It simply means the server is not running yet.');
+							count++;
+						})
+						.finally(() => count == numServers && resolve());
+				})
+			})
+			.catch((err) => reject(err));
+	});
+}
 
 // Render the Sass files (scss) to regular CSS
 function renderSass(res, next) {
@@ -468,6 +500,19 @@ function getServerProperties(server) {
 function buildServerResponse(s, m, d = {}) {
 	if (typeof (m) === typeof (new Error)) (log.error(m), d.error = m);
 	return { success: s, message: m, data: d };
+}
+
+// Send a GameSpy4 query to the specified Minecraft server
+function queryServer(host, port) {
+	return new Promise((resolve, reject) => {
+		Gamedig.query({
+			type: 'minecraft',
+			host: host === '' || host == null ? '0.0.0.0' : host,
+			port: port
+		})
+			.then((state) => resolve(state))
+			.catch((err) => reject(err));
+	})
 }
 
 // Gets a player UUID for whitelist/blacklist/op/etc. operations before the player has joined the server.
