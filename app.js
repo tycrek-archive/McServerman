@@ -312,6 +312,7 @@ function setRoutes() {
 			.then((properties) => properties.properties['rcon.password'])
 			.then((password) => {
 				// Send the 'stop' command to the Jar with RCON
+				// TODO: use server IP and port from configuration
 				let conn = new (require('rcon'))('0.0.0.0', 25575, password);
 				conn.connect();
 				conn.on('auth', () => conn.send('stop'));
