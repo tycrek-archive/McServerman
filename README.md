@@ -50,6 +50,7 @@ If you really want to contribute to this, sure, why not, go ahead.
 - [MCVersions.net](https://mcversions.net/) for providing download links for Server Jar files
 - [MCUUID](https://mcuuid.net/) for providing information on player UUID (assists in player operations before they have ever joined)
 - [Official Minecraft Wiki - Gamepedia](https://minecraft.gamepedia.com/Server.properties)
+- [Daniel Ennis](https://aikar.co/author/daniel-ennis-aikar/) for providing [invaluable information](https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/) on JVM garbage collection to improve running Minecraft servers
 
 ## Hotel?
 
