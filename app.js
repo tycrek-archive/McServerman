@@ -32,10 +32,6 @@ const Sass = require('node-sass');
 // scraping websites
 const fetch = require('node-fetch');
 
-/// cheerio
-// Makes it easier to parse HTML for scraping Jar download links
-const cheerio = require('cheerio');
-
 /// moment
 // For tracking usage and other stuff
 const moment = require('moment');
@@ -93,7 +89,7 @@ const PATHS = {
 // TODO: Add support for Bedrock edition, if it ever leaves Alpha stages.
 //       Current Bedrock link is also not Direct Download.
 const DOWNLOAD_LINKS = {
-	vanilla: 'https://mcversions.net/download/',
+	vanilla: 'https://mcversions.net/mcversions.json',
 	paper: {
 		1.15: 'https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar',
 		1.14: 'https://papermc.io/ci/job/Paper-1.14/lastSuccessfulBuild/artifact/paperclip.jar',
@@ -406,15 +402,13 @@ function renderSass(res, next) {
 	Sass.render({ file: PATHS.sass, outputStyle: 'compressed' }, (err, result) => err ? next(err) : res.type('css').send(result.css));
 }
 
-// Scrape the download URL for Vanilla Minecraft from mcversions.net
+// Scrape the download URL for Vanilla Minecraft
+// from mcversions.net/mcversions.json
 function getVanillaUrl(version) {
 	return new Promise((resolve, reject) => {
-		fetch(DOWNLOAD_LINKS.vanilla + version)
-			.then((response) => response.text())
-			// The site doesn't have DOM ID's which makes parsing the correct
-			// link difficult, sketchy string splits it is! If the site ever
-			// changes its layout, this will most likely need to be fixed.
-			.then((dom) => cheerio.load(dom)('.downloads').html().split('href="')[1].split('" download')[0])
+		fetch(DOWNLOAD_LINKS.vanilla)
+			.then((response) => response.json())
+			.then((json) => json.stable[version].server)
 			.then((url) => resolve(url))
 			.catch((err) => reject(err));
 	});
