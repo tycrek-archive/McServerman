@@ -106,7 +106,7 @@ const DOWNLOAD_LINKS = {
 /// PLAYER_UUID_LINK
 // Link for where to grab info on Minecraft Player UUID's. These are helpful
 // for opping / whitelisting players before they have joined.
-const PLAYER_UUID_LINK = 'https://mcuuid.net/?q=';
+const PLAYER_UUID_LINK = 'https://playerdb.co/api/player/minecraft/';
 
 /// MEMORY_SPLIT
 // Amount of dedicated RAM for a Jar file is total free system memory divided
@@ -711,9 +711,12 @@ function getPlayerUuid(name) {
 	log.info(`Attempting to grab UUID for Player '${name}`);
 	return new Promise((resolve, reject) => {
 		fetch(PLAYER_UUID_LINK + name)
-			.then((response) => response.text())
-			.then((dom) => cheerio.load(dom)('#results_id').val())
-			.then((uuid) => resolve(uuid))
+			.then((response) => response.json())
+			.then((json) => {
+				if (json.error) throw Error(json.message);
+				else return json.data.player.id;
+			})
+			.then((puuid) => resolve(puuid))
 			.catch((err) => reject(err));
 	});
 }
