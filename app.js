@@ -52,6 +52,10 @@ const klaw = require('klaw');
 // For generating rcon passwords when user specifies none
 const randomstring = require('randomstring');
 
+/// rcon
+// For sending remote commands to a running server
+const rcon = require('rcon');
+
 // Express "setup"
 const express = require('express');
 const app = express();
@@ -304,26 +308,14 @@ function setRoutes() {
 	app.get('/servers/stop/:suuid', (req, res, _next) => {
 		let suuid = req.params.suuid;
 
-		// Obviously we can't stop the server if it isn't running yet...
+		// Obviously we can't stop the server if it isn't running yet
 		if (!ACTIVE_SERVERS.hasOwnProperty(suuid))
 			return res.send(buildServerResponse(false, Error('Server not running!')));
 
-		getServerFromConfig(suuid)
-			.then((server) => getServerProperties(server))
-			.then((properties) => properties.properties['rcon.password'])
-			.then((password) => {
-				// Send the 'stop' command to the Jar with RCON
-				// TODO: use server IP and port from configuration
-				let conn = new (require('rcon'))('0.0.0.0', 25575, password);
-				conn.connect();
-				conn.on('error', (err) => log.warn(err));
-				conn.on('auth', () => conn.send('stop'));
-				conn.on('response', (str) => {
-					conn.disconnect();
-					delete ACTIVE_SERVERS[suuid];
-					res.send(buildServerResponse(true, str));
-				});
-			})
+		// Attempt to stop the server with RCON (this also removes it from
+		// ACTIVE_SERVERS)
+		stopServer(suuid)
+			.then((response) => res.send(buildServerResponse(true, response)))
 			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
@@ -487,6 +479,45 @@ function runJar(directory, jar, suuid, wait = true, useExperimentalFlags = true)
 				if (!wait) resolve();
 			})
 			.catch((err) => console.error(err))
+	});
+}
+
+// Sends an RCON command to stop a running server
+function stopServer(suuid) {
+	log.info(`Stopping server ${suuid}`)
+	return new Promise((resolve, reject) => {
+		sendRconCommand(suuid, 'stop')
+			.then((response) => {
+				log.info(`RCON reply from server ${suuid}: ${response}`);
+				delete ACTIVE_SERVERS[suuid];
+				return response;
+			})
+			.then((response) => resolve(response))
+			.catch((err) => reject(err))
+	});
+}
+
+// Send an RCON command to the specified server
+function sendRconCommand(suuid, command) {
+	return new Promise((resolve, reject) => {
+		getServerFromConfig(suuid)
+			.then((server) => getServerProperties(server))
+			.then((p) => ({
+				host: p.properties['server-ip'] !== '' ? p.properties['server-ip'] : '0.0.0.0',
+				port: p.properties['rcon.port'],
+				password: p.properties['rcon.password']
+			}))
+			.then((params) => {
+				let conn = new rcon(params.host, params.port, params.password);
+				conn.connect();
+				conn.on('error', (err) => log.warn(err));
+				conn.on('auth', () => conn.send(command));
+				conn.on('response', (response) => {
+					conn.disconnect();
+					resolve(response);
+				});
+			})
+			.catch((err) => reject(err));
 	});
 }
 
