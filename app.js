@@ -48,6 +48,9 @@ const Gamedig = require('gamedig');
 // For "walking" directories
 const klaw = require('klaw');
 
+/// randomstring
+// For generating rcon passwords when user specifies none
+const randomstring = require('randomstring');
 
 // Express "setup"
 const express = require('express');
@@ -247,6 +250,16 @@ function setRoutes() {
 
 			// Write a config to USER_CONFIG with our brand new shiny server!
 			.then(() => writeUserConfig(name, version, type, suuid, destPath, destFile))
+
+			// Read/write server.properties to ensure query and RCON are
+			// enabled by default
+			.then(() => fs.readdir(destPath))
+			.then((files) => {
+				if (!files.includes('server.properties')) throw Error('Missing server.properties file!');
+				else return fs.readFile(path.join(destPath, 'server.properties'));
+			})
+			.then((bytes) => bytes.toString())
+			.then((properties) => writeServerProperties(suuid, properties))
 
 			// Respond to the client
 			.then(() => res.send(buildServerResponse(true, '')))
@@ -586,13 +599,21 @@ function getServerProperties(server) {
 	});
 }
 
-// Write server.properties file
+// Write server.properties file and force enable query, rcon, and set an rcon
+// password if the user did not specify one.
 function writeServerProperties(suuid, properties) {
 	log.info(`Writing server.properties for ${suuid}`);
 	return new Promise((resolve, reject) => {
-		properties = properties.replace('enable-rcon=false', 'enable-rcon=true');
+
+		// Force enable query and rcon
 		properties = properties.replace('enable-query=false', 'enable-query=true');
-		// TODO: fix blank rcon password
+		properties = properties.replace('enable-rcon=false', 'enable-rcon=true');
+
+		// Add an rcon password if needed
+		let splitProp = properties.split('\n');
+		for (let i = 0; i < splitProp.length; i++)
+			if (splitProp[i].trim() === 'rcon.password=')
+				properties = properties.replace('rcon.password=', `rcon.password=${randomstring.generate(12)}`);
 
 		getServerFromConfig(suuid)
 			.then((server) => fs.writeFile(path.join(server.directory, 'server.properties'), properties))
