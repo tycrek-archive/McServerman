@@ -194,14 +194,8 @@ function setRoutes() {
 	// Loads the server.properties into server.pug for the given
 	// suuid("Server UUID")
 	app.get('/pages/server/:suuid', (req, res, next) => {
-		fs.readJson(USER_CONFIG)
-			.then((json) => json.servers)
-			.then((servers) => {
-				for (let i = 0; i < servers.length; i++)
-					if (servers[i].suuid === req.params.suuid)
-						return getServerProperties(servers[i]);
-				throw Error('No such server exists!');
-			})
+		getServerFromConfig(req.params.suuid)
+			.then((server) => getServerProperties(server))
 			.then((config) => res.render('server', config))
 			.catch((err) => next(err));
 	});
@@ -269,11 +263,7 @@ function setRoutes() {
 		// for the love of god do NOT change this
 		let properties = Buffer.from(req.params.data, 'base64').toString();
 
-		properties = properties.replace('enable-rcon=false', 'enable-rcon=true');
-		properties = properties.replace('enable-query=false', 'enable-query=true');
-
-		getServerFromConfig(suuid)
-			.then((server) => fs.writeFile(path.join(server.directory, 'server.properties'), properties))
+		writeServerProperties(suuid, properties)
 			.then(() => res.send(buildServerResponse(true, 'Success!')))
 			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
@@ -534,6 +524,7 @@ function getServerFromConfig(suuid) {
 				for (let i = 0; i < json.servers.length; i++)
 					if (json.servers[i].suuid === suuid)
 						return json.servers[i];
+				throw Error('No such server exists!');
 			})
 			.then((server) => resolve(server))
 			.catch((err) => reject(err));
@@ -591,6 +582,21 @@ function getServerProperties(server) {
 			})
 			.then((propertyInfo) => jsonProperties['__info__'] = propertyInfo)
 			.then(() => resolve(jsonProperties))
+			.catch((err) => reject(err));
+	});
+}
+
+// Write server.properties file
+function writeServerProperties(suuid, properties) {
+	log.info(`Writing server.properties for ${suuid}`);
+	return new Promise((resolve, reject) => {
+		properties = properties.replace('enable-rcon=false', 'enable-rcon=true');
+		properties = properties.replace('enable-query=false', 'enable-query=true');
+		// TODO: fix blank rcon password
+
+		getServerFromConfig(suuid)
+			.then((server) => fs.writeFile(path.join(server.directory, 'server.properties'), properties))
+			.then(() => resolve())
 			.catch((err) => reject(err));
 	});
 }
