@@ -117,7 +117,9 @@ const PLAYER_UUID_LINK = 'https://playerdb.co/api/player/minecraft/';
 const MEMORY_SPLIT = 3;
 
 /// JAVA_INSTALLATIONS
-// A collection of where Java may be installed on certain operating systems
+// A collection of where Java may be installed on certain operating systems.
+// Types are from: https://nodejs.org/api/os.html#os_os_type
+// When checking against these, make sure to use os.type().toLowerCase()
 // TODO: Update windows and macos
 const JAVA_INSTALLATIONS = {
 	linux: '/usr/lib/jvm/', // All Linux-based systems
@@ -710,6 +712,7 @@ function walkDir(dir) {
 	})
 }
 
+// Run the version command on the specified java binary. Version 8 is optimal.
 function getJavaVersionFromBin(bin) {
 	return new Promise((resolve, reject) => {
 		let args = ['-version'];
