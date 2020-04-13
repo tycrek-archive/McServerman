@@ -380,7 +380,9 @@ function refreshActiveServers() {
 						.then((p) => queryServer(p.properties['server-ip'], p.properties['query.port']))
 						.then((_state) => {
 							count++;
-							ACTIVE_SERVERS[server.suuid] = { nonjar: true };
+							// Usually we would NOT use Sync, but since this is
+							// only run at the start it is fine.
+							ACTIVE_SERVERS[server.suuid] = fs.readFileSync(path.join(server.directory, '.pid')).toString().trim();
 						})
 						.catch((err) => {
 							log.warn(err);
@@ -388,7 +390,7 @@ function refreshActiveServers() {
 							count++;
 						})
 						.finally(() => count == numServers && resolve());
-				})
+				});
 			})
 			.catch((err) => reject(err));
 	});
@@ -443,22 +445,21 @@ function runJar(directory, jar, suuid, wait = true, useExperimentalFlags = true)
 	return new Promise((resolve, reject) => {
 
 		// Set up the subprocess
+		let java;
 		let bin = 'java';
+		let args = ['-jar', jar, 'nogui'];
+		let options = { cwd: directory, windowsHide: true, detached: true };
+
 		getJavaPath()
 			.then((javaPath) => bin = javaPath)
 			.then(() => getJavaVersionFromBin(bin))
-			.then((version) => {
-				let args = ['-jar', jar, 'nogui'];
-				let options = { cwd: directory, windowsHide: true, detached: true };
-
-				// Insert experimental flags if necessary
-				args = useExperimentalFlags ? buildExperimentalFlags(version).concat(args) : args;
-
-				// Spawn the subprocess and...
-				let java = spawn(bin, args, options);
-
-				// ... add it to the server list
-				ACTIVE_SERVERS[suuid] = java;
+			.then((version) => useExperimentalFlags ? buildExperimentalFlags(version).concat(args) : args)
+			.then((args) => spawn(bin, args, options))
+			.then((spawnedProcess) => java = spawnedProcess)
+			.then(() => fs.ensureFile(path.join(directory, '.pid')))
+			.then(() => fs.writeFile(path.join(directory, '.pid'), java.pid))
+			.then(() => {
+				ACTIVE_SERVERS[suuid] = java.pid;
 
 				// Print stdout and stderr
 				java.stdout.on('data', (out) => log.info(`[${java.pid}] stdout: ${out.toString().trim()}`));
@@ -775,3 +776,5 @@ function getPlayerUuid(name) {
 			.catch((err) => reject(err));
 	});
 }
+
+// TODO: Log file monitoring: https://www.hosthorde.com/forums/resources/understanding-minecraft-server-log-files.75/
