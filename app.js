@@ -377,7 +377,7 @@ function refreshActiveServers() {
 				numServers = config.servers.length;
 				config.servers.forEach((server) => {
 					getServerProperties(server)
-						.then((properties) => queryServer(properties['server-ip'], properties['query.port']))
+						.then((p) => queryServer(p.properties['server-ip'], p.properties['query.port']))
 						.then((_state) => {
 							count++;
 							ACTIVE_SERVERS[server.suuid] = { nonjar: true };
