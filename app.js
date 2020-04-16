@@ -56,6 +56,10 @@ const randomstring = require('randomstring');
 // For sending remote commands to a running server
 const rcon = require('rcon');
 
+/// process-exists
+// For checking if the server process has exited before restarting
+const procExists = require('process-exists');
+
 // Express "setup"
 const express = require('express');
 const app = express();
@@ -296,8 +300,7 @@ function setRoutes() {
 		if (ACTIVE_SERVERS.hasOwnProperty(suuid))
 			return res.send(buildServerResponse(false, Error('Server already running!')));
 
-		getServerFromConfig(suuid)
-			.then((server) => runJar(server.directory, server.jarFile, suuid, false))
+		startServer(suuid)
 			.then(() => res.send(buildServerResponse(true, 'Server started!')))
 			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
@@ -318,6 +321,21 @@ function setRoutes() {
 			.then((response) => res.send(buildServerResponse(true, response)))
 			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
+
+	/// Restart server
+	// Attempts to stop the running server, wait for it's process ID to exit,
+	// then start the server again.
+	app.get('/servers/restart/:suuid', (req, res, _next) => {
+		let suuid = req.params.suuid;
+
+		// Obviously we can't restart the server if it isn't running yet
+		if (!ACTIVE_SERVERS.hasOwnProperty(suuid))
+			return res.send(buildServerResponse(false, Error('Server not running!')));
+
+		restartServer(suuid)
+			.then(() => res.send(buildServerResponse(true, 'Server restarted!')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	})
 
 	/// Query a (hopefully running) server
 	// Query a server to check if it is online using Gamedig:
@@ -483,6 +501,16 @@ function runJar(directory, jar, suuid, wait = true, useExperimentalFlags = true)
 	});
 }
 
+// Starts a server
+function startServer(suuid) {
+	return new Promise((resolve, reject) => {
+		getServerFromConfig(suuid)
+			.then((server) => runJar(server.directory, server.jarFile, suuid, false))
+			.then(() => resolve())
+			.catch((err) => reject(err));
+	});
+}
+
 // Sends an RCON command to stop a running server
 function stopServer(suuid) {
 	log.info(`Stopping server ${suuid}`)
@@ -494,8 +522,52 @@ function stopServer(suuid) {
 				return response;
 			})
 			.then((response) => resolve(response))
-			.catch((err) => reject(err))
+			.catch((err) => reject(err));
 	});
+}
+
+// Restarts the server
+function restartServer(suuid) {
+	log.info(`Restarting server ${suuid}`);
+	return new Promise((resolve, reject) => {
+		let pid = ACTIVE_SERVERS[suuid];
+		stopServer(suuid)
+			.then(() => _waitForExit(pid))
+			.then(() => startServer(suuid))
+			.then(() => resolve())
+			.catch((err) => reject(err));
+	});
+
+	// Uses process-exit to wait for the processt to... exit.
+	function _waitForExit(pid) {
+		return new Promise(async (resolve, reject) => {
+			try {
+				// First we assume that the process is already running (it
+				// should be if we made it this far)
+				let exists = true;
+
+				// While it exists, simply keep checking until it does not
+				// exist anymore
+				while (exists) {
+					log.debug(`Waiting for process [${pid}] to exit...`);
+
+					// Docs for process-exists use async/await, I might update
+					// to Promise in the future if possible
+
+					// map is a map of all processes matching pid and java. I
+					// definitely could have misread the docs (very lacking!)
+					// so I may not need to use .all and 'java'. However, it
+					// works right now so I'm not too concerned.
+					let map = await procExists.all([pid, 'java']);
+					exists = map.get(pid);
+				}
+				log.info(`Process [${pid}] has exited!`);
+				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
 }
 
 // Send an RCON command to the specified server
@@ -580,7 +652,8 @@ function getServerFromConfig(suuid) {
 
 // Reads server.properties for specified server and converts it to a JSON
 // format.
-//TODO: Update last access date
+// TODO: Update last access date
+// TODO: This ^ todo is in the completely wrong spot
 function getServerProperties(server) {
 	return new Promise((resolve, reject) => {
 

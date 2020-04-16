@@ -26,6 +26,7 @@
     "node-sass": "^4.13.1",
     "pino": "^6.1.0",
     "pino-pretty": "^4.0.0",
+    "process-exists": "^4.0.0",
     "pug": "^2.0.4",
     "randomstring": "^1.1.5",
     "rcon": "^1.0.3",

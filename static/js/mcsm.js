@@ -137,6 +137,21 @@ function startStopServer(suuid) {
 	}
 }
 
+// Restart the server (or start it if not running yet)
+function restartServer(suuid) {
+	let status = $('#server-status');
+	if (status.text() !== 'Online') startStopServer(suuid);
+	else {
+		fetch(`/servers/restart/${suuid}`)
+			.then((response) => response.json())
+			.then((json) => {
+				if (!json.success) throw Error(json.message.message);
+				else status.html('Online')
+			})
+			.catch((err) => alert(err));
+	}
+}
+
 // Ask McServerman server to query the Minecraft server so we can see if it is actually online
 // TODO: Make this work from the homepage maybe?
 function queryServer() {
