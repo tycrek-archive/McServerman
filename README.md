@@ -17,6 +17,7 @@ If you like this project, consider [donating](https://www.paypal.me/jmoore235). 
 - [x] Automatically "sign" EULA
 - [ ] [Bedrock Editon](https://minecraft.gamepedia.com/Bedrock_Edition) servers
 - [ ] [Snapshot](https://minecraft.gamepedia.com/Tutorials/How_to_install_a_snapshot) servers
+- [ ] Import existing servers
 
 #### Managing Minecraft servers
 
