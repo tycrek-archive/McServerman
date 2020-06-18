@@ -87,11 +87,11 @@ const USER_CONFIG = path.join(__dirname, 'config/user/config.json');
 // is mostly to avoid having ugly  path.join(__dirname, 'file')  all over the
 // codebase.
 const PATHS = {
-	static: path.join(__dirname, 'static'),
-	fonts: path.join(__dirname, 'fonts'),
-	pages: path.join(__dirname, 'views/pages'),
-	sass: path.join(__dirname, 'sass/main.scss'),
-	properties: path.join(__dirname, 'config/properties.json')
+	static: path.join(__dirname, '..', 'static'),
+	fonts: path.join(__dirname, '..', 'fonts'),
+	pages: path.join(__dirname, '..', 'views/pages'),
+	sass: path.join(__dirname, '..', 'sass/main.scss'),
+	properties: path.join(__dirname, '..', 'config/properties.json')
 };
 
 /// DOWNLOAD_LINKS
@@ -229,7 +229,7 @@ function setRoutes() {
 		let name = req.params.name;
 		let suuid = uuid();
 
-		let destPath = path.join(__dirname, `servers/${name}-${type}-${version}/`);
+		let destPath = path.join(__dirname, `../mc-servers/${name}-${type}-${version}/`);
 		let destFile = `${name}-${type}-${version}.jar`;
 		let dest = path.join(destPath, destFile);
 

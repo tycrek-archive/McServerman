@@ -107,7 +107,7 @@ dist
 ## Project ignores
 
 # Servers folder
-servers/
+mc-servers/
 
 # User config
 config/user/
