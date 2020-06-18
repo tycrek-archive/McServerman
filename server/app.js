@@ -17,10 +17,15 @@ const os = require('os');
 // fs functions
 const fs = require('fs-extra');
 
+/// moment
+// For tracking usage and other stuff like Timestamp manipulation
+const moment = require('moment');
+
 /// pino (depends on: pino-pretty)
 // Good log tool (common log levels are info, warn, error, etc.)
 const log = require('pino')({
-	prettyPrint: process.env.NODE_ENV === 'production' ? false : true
+	prettyPrint: process.env.NODE_ENV === 'production' ? false : true,
+	timestamp: () => `,"time": ${moment().format('YYYY-MM-DD hh:mm:ss A')} `
 });
 
 /// node-sass
@@ -31,10 +36,6 @@ const Sass = require('node-sass');
 // Node version of fetch API from browsers. Used for downloading files and
 // scraping websites
 const fetch = require('node-fetch');
-
-/// moment
-// For tracking usage and other stuff
-const moment = require('moment');
 
 /// uuid
 // For identifying servers on something other than a name
