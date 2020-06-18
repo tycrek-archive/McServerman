@@ -72,7 +72,7 @@ function newServer() {
 
 			// Load the homepage if it worked, otherwise tell the user.
 			if (json.success) LOAD_PAGE(PAGES.home);
-			else alert('Failed, please try again!');
+			else alert(`Failed, please try again!${json.message ? `\n\n${json.message}` : ''}`);
 		})
 		.catch((err) => alert(`Error: ${err}`));
 }

@@ -133,7 +133,11 @@ const JAVA_INSTALLATIONS = {
 	linux: '/usr/lib/jvm/', // All Linux-based systems
 	windows_nt: '', // Microsoft Windows based systems
 	darwin: '' // Apple macOS
-}
+};
+
+/// JAVA_DOWNLOAD
+// A list of links to download Java for a certain platform
+const JAVA_DOWNLOAD = 'https://www.java.com/en/download/manual.jsp';
 
 
 //// Global variables //// (Keep this section as small as possible)
@@ -158,10 +162,10 @@ app.set('view engine', 'pug');
 setRoutes();
 
 // Load server configs and import any active servers
-refreshActiveServers();
-
-// Run the app!
-app.listen(PORT, HOST, () => log.info(`Server hosted on ${HOST}:${PORT}`));
+refreshActiveServers()
+	// Run the app!
+	.catch((err) => log.warn(err))
+	.then(() => app.listen(PORT, HOST, () => log.info(`Server hosted on ${HOST}:${PORT}`)));
 
 
 //// Routes ////
@@ -497,7 +501,10 @@ function runJar(directory, jar, suuid, wait = true, useExperimentalFlags = true)
 				});
 				if (!wait) resolve();
 			})
-			.catch((err) => console.error(err))
+			.catch((err) => {
+				log.error(err);
+				if (Object(err).toString().includes('No java')) reject(`Please visit this link for Java installation instructions: ${JAVA_DOWNLOAD}`);
+			});
 	});
 }
 
@@ -734,7 +741,7 @@ function writeServerProperties(suuid, properties) {
 // can print it and attach it without messing around with overloaded functions.
 // I think ?
 function buildServerResponse(s, m, d = {}) {
-	if (typeof (m) === typeof (new Error)) (log.error(m), d.error = m);
+	if (typeof (m) === typeof (Object)) m = Object(m).toString();
 	return { success: s, message: m, data: d };
 }
 
