@@ -832,7 +832,7 @@ function walkDir(dir) {
 // Run the version command on the specified java binary. Version 8 is optimal.
 function getJavaVersionFromBin(bin) {
 	return new Promise((resolve, reject) => {
-		let args = ['-version'];
+		let args = ['-d64', '-version'];
 		let options = { windowsHide: true, detached: true };
 		let java = spawn(bin, args, options);
 
