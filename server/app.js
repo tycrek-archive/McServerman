@@ -505,6 +505,8 @@ function runJar(directory, jar, suuid, wait = true, useExperimentalFlags = true)
 			.catch((err) => {
 				log.error(err);
 				if (Object(err).toString().includes('No java')) reject(`Please visit this link for Java installation instructions: ${JAVA_DOWNLOAD}`);
+				if (Object(err).toString().includes('Wrong Java')) reject(`Wrong Java version; please install Java 8: ${JAVA_DOWNLOAD}`);
+				else reject(err);
 			});
 	});
 }
