@@ -81,7 +81,7 @@ const PORT = 7767;
 /// USER_CONFIG
 // Poorly named yet very important variable. Path to where McSm's server list
 // is. Because of its importance, it will NOT go into the PATHS constant.
-const USER_CONFIG = path.join(__dirname, 'config/user/config.json');
+const USER_CONFIG = path.join(__dirname, '..', 'config/user/config.json');
 
 /// PATHS
 // Stores absolute paths for certain items based on their relative path. This
