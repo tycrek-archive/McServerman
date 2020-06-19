@@ -95,6 +95,13 @@ const PATHS = {
 	properties: path.join(__dirname, '..', 'config/properties.json')
 };
 
+/// OS_TYPES
+const OS_TYPES = {
+	linux: 0,
+	windows_nt: 1,
+	darwin: 2
+}
+
 /// DOWNLOAD_LINKS
 // Collection of links for where Jar files can be downloaded from.
 // TODO: Add 1.16 link to PaperMC once 1.16 servers are available
@@ -798,24 +805,33 @@ function buildExperimentalFlags(version) {
 function getJavaPath() {
 	return new Promise((resolve, reject) => {
 		let system = os.type().toLowerCase();
-		fs.pathExists(JAVA_INSTALLATIONS[system])
-			.then((exists) => {
-				if (!exists) throw Error('No java installation found!');
-				else return fs.readdir(JAVA_INSTALLATIONS[system])
-			})
-			.then((list) => {
-				for (let i = 0; i < list.length; i++)
-					if (list[i].includes('-8-')) // Matching -8- may break in the future
-						return list[i];
-			})
-			.then((java8) => path.join(JAVA_INSTALLATIONS[system], java8))
-			.then((fullPath) => walkDir(fullPath))
-			.then((files) => {
-				for (let i = 0; i < files.length; i++)
-					if (files[i].path.endsWith('/java')) return files[i];
-			})
-			.then((file) => resolve(file.path))
-			.catch((err) => reject(err));
+		if (system = OS_TYPES.windows_nt) {
+			getJavaVersionFromBin('java')
+				.then((version) => {
+					if (version) resolve('java');
+					else throw Error('Wrong Java version; please install Java 8');
+				})
+				.catch((err) => reject(err));
+		} else {
+			fs.pathExists(JAVA_INSTALLATIONS[system])
+				.then((exists) => {
+					if (!exists) throw Error('No java installation found!');
+					else return fs.readdir(JAVA_INSTALLATIONS[system])
+				})
+				.then((list) => {
+					for (let i = 0; i < list.length; i++)
+						if (list[i].includes('-8-')) // Matching -8- may break in the future
+							return list[i];
+				})
+				.then((java8) => path.join(JAVA_INSTALLATIONS[system], java8))
+				.then((fullPath) => walkDir(fullPath))
+				.then((files) => {
+					for (let i = 0; i < files.length; i++)
+						if (files[i].path.endsWith('/java')) return files[i];
+				})
+				.then((file) => resolve(file.path))
+				.catch((err) => reject(err));
+		}
 	});
 }
 
