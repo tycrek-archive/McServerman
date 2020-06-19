@@ -389,7 +389,7 @@ function setRoutes() {
 function refreshActiveServers() {
 	return new Promise((resolve, reject) => {
 		let numServers;
-		let count;
+		let count = 0;
 		fs.pathExists(USER_CONFIG)
 			.then((exists) => {
 				if (!exists) throw Error('No valid User Config found!');
