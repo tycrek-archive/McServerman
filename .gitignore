@@ -111,3 +111,6 @@ mc-servers/
 
 # User config
 config/user/
+
+# World ZIPs
+worlds/
