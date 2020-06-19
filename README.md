@@ -1,5 +1,8 @@
 # McServerman
 
+[//]: # ( :heavy_check_mark: )
+[//]: # ( :x: )
+
 #### *A web-based GUI for managing Minecraft servers*
 
 I created this because I'm officially annoyed with managing my various servers through the command line. I'm also quarantined for [COVID-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019) and I am bored.
@@ -12,69 +15,69 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 
 #### Creating Minecraft servers
 
-- [x] Download Vanilla ([Java Edition](https://minecraft.gamepedia.com/Java_Edition)) Jar
-- [x] Download [PaperMC](https://papermc.io/) (Spigot) Jar
-- [x] Automatically "sign" EULA
-- [ ] [Bedrock Editon](https://minecraft.gamepedia.com/Bedrock_Edition) servers
-- [ ] [Snapshot](https://minecraft.gamepedia.com/Tutorials/How_to_install_a_snapshot) servers
-- [ ] Import existing servers
+- :heavy_check_mark: Download Vanilla ([Java Edition](https://minecraft.gamepedia.com/Java_Edition)) Jar
+- :heavy_check_mark: Download [PaperMC](https://papermc.io/) (Spigot) Jar
+- :heavy_check_mark: Automatically "sign" EULA
+- :x: [Bedrock Editon](https://minecraft.gamepedia.com/Bedrock_Edition) servers
+- :x: [Snapshot](https://minecraft.gamepedia.com/Tutorials/How_to_install_a_snapshot) servers
+- :x: Import existing servers
 
 #### Managing Minecraft servers
 
-- [x] Manage multiple servers
-- [x] GUI `server.properties` editor with explanations & recommended settings
-- [x] Start/stop servers (even after McServerman has restarted!)
-- [x] Restart servers
-- [ ] Delete servers
-- [ ] Install & manage plugins (PaperMC/Spigot)
-- [ ] Download Java 8 JRE for best compatibility
-- [x] Run Jar using Java 8 JRE
+- :heavy_check_mark: Manage multiple servers
+- :heavy_check_mark: GUI `server.properties` editor with explanations & recommended settings
+- :heavy_check_mark: Start/stop servers (even after McServerman has restarted!)
+- :heavy_check_mark: Restart servers
+- :x: Delete servers
+- :x: Install & manage plugins (PaperMC/Spigot)
+- :x: Download Java 8 JRE for best compatibility
+- :heavy_check_mark: Run Jar using Java 8 JRE
 
 #### World management
 
-- [ ] Upload existing worlds
-- [ ] Download active world
-- [ ] Backup/Restore
-- [ ] Regenerate world
-- [ ] World switching (example: switching between a parkour map and a survival map)
-- [ ] Upgrade for new versions (example: 1.14 -> 1.15)
+- :x: Upload existing worlds
+- :x: Download active world
+- :x: Backup/Restore
+- :x: Regenerate world
+- :x: World switching (example: switching between a parkour map and a survival map)
+- :x: Upgrade for new versions (example: 1.14 -> 1.15)
 
 #### Player operations
 
-- [ ] Whitelist
-- [ ] Blacklist *(PaperMC only)*
-- [ ] "Op" and "Deop"
-- [ ] Bans
-- [ ] Run the above functions before players have ever joined using player UUID's
-- [ ] List all players who have previously joined and run the above functions on them
+- :x: Whitelist
+- :x: Blacklist *(PaperMC only)*
+- :x: "Op" and "Deop"
+- :x: Bans
+- :x: Run the above functions before players have ever joined using player UUID's
+- :x: List all players who have previously joined and run the above functions on them
 
 #### Statistics
 
-- [ ] System & server uptime
-- [ ] System & server resource usage (monitor & historical data)
-- [ ] World size (including growth over time)
-- [ ] Graphs!
-- [ ] Player statistics (# of joins; average playtime; etc.)
-- [ ] Insights (Interesting tidbits on existing statistics)
+- :x: System & server uptime
+- :x: System & server resource usage (monitor & historical data)
+- :x: World size (including growth over time)
+- :x: Graphs!
+- :x: Player statistics (# of joins; average playtime; etc.)
+- :x: Insights (Interesting tidbits on existing statistics)
 
 #### Alerts
 
-- [ ] Email or SMS
-- [ ] Server crashes
-- [ ] Heavy resource usage/lag
-- [ ] Player alerts (join, auto-kick, etc.)
-- [ ] Backup tasks
+- :x: Email or SMS
+- :x: Server crashes
+- :x: Heavy resource usage/lag
+- :x: Player alerts (join, auto-kick, etc.)
+- :x: Backup tasks
 
 #### Awesome stuff
 
-- [ ] McServerman password authentication
-- [ ] McServerman [OAuth authentication](https://stackoverflow.com/questions/4201431/what-exactly-is-oauth-open-authorization) (maybe)
-- [ ] Decent Wiki pages (installation, usage, etc.)
-- [ ] Automatically set up `systemd` on Linux for McServerman
-- [ ] Auto port-forward with [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play) (or a guide on port forwarding)
-- [ ] Web console with [RCON](https://en.wikipedia.org/wiki/Remote_administration) *(RCON is working; however Web console is not added yet!)*
-- [ ] Mobile-friendly version
-- [ ] [Progressive Web APP](https://www.howtogeek.com/342121/what-are-progressive-web-apps/) (PWA)
+- :x: McServerman password authentication
+- :x: McServerman [OAuth authentication](https://stackoverflow.com/questions/4201431/what-exactly-is-oauth-open-authorization) (maybe)
+- :x: Decent Wiki pages (installation, usage, etc.)
+- :x: Automatically set up `systemd` on Linux for McServerman
+- :x: Auto port-forward with [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play) (or a guide on port forwarding)
+- :x: Web console with [RCON](https://en.wikipedia.org/wiki/Remote_administration) *(RCON is working; however Web console is not added yet!)*
+- :x: Mobile-friendly version
+- :x: [Progressive Web APP](https://www.howtogeek.com/342121/what-are-progressive-web-apps/) (PWA)
 
 ## Installation
 
@@ -85,13 +88,13 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
   - **Windows** - Experimental
   - **macOS** - Not supported
 - Latest LTS **[Node.js](https://nodejs.org/en/download/)** *(verified working with Node 13.12, but others may work as well)*
-- Also ensure **NPM** is installed and works
-- Preferably at least **8GB RAM**
+- Also ensure both **NPM** & **Git** are installed and working
+- Preferably at least **8GB RAM** (for the Minecraft server; McServerman alone runs on a potato)
 - Command line experience is very helpful
 
 #### Installation
 
-**Linux**
+**Linux** (Windows/macOS probably work with this as well)
 
 ```
 $ git clone https://github.com/tycrek/McServerman.git
