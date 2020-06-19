@@ -36,7 +36,7 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 #### World management
 
 - :x: Upload existing worlds
-- :x: Download active world
+- :heavy_check_mark: Download active world
 - :x: Backup/Restore
 - :x: Regenerate world
 - :x: World switching (example: switching between a parkour map and a survival map)

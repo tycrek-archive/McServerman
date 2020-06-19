@@ -61,6 +61,10 @@ const rcon = require('rcon');
 // For checking if the server process has exited before restarting
 const procExists = require('process-exists');
 
+/// adm-zip
+// zip/unzip world folders
+const AdmZip = require('adm-zip');
+
 // Express "setup"
 const express = require('express');
 const app = express();
@@ -153,6 +157,10 @@ const JAVA_DOWNLOAD = 'https://www.java.com/en/download/manual.jsp';
 /// ACTIVE_SERVERS
 // Stores the subprocess object created from "spawning" a Jar file.
 var ACTIVE_SERVERS = {};
+
+/// TEMP_DOWNLOADS
+// Keeps track of any zip files requested for download
+var TEMP_DOWNLOADS = {};
 
 
 //// Express app setup ////
@@ -401,6 +409,28 @@ function setRoutes() {
 			// Print a debug log and DON'T pass the actual error since the
 			// console would be overcrowded otherwise
 			.catch((err) => (log.debug(err), res.send(buildServerResponse(false, err.message, err))));
+	});
+
+	// Zip a server folder
+	app.get('/servers/download/:suuid', (req, res, next) => {
+		let suuid = req.params.suuid;
+
+		let zip = new AdmZip();
+		let server;
+		let archivePath;
+		let did = uuid();
+		getServerFromConfig(suuid)
+			.then((mServer) => server = mServer)
+			.then(() => archivePath = path.join(__dirname, '../worlds/', `${server.name}-${server.version}-${moment().format('YYYY.MM.DD-HH.mm.ss')}.zip`))
+			.then(() => zip.addLocalFolder(server.directory))
+			.then(() => zip.writeZip(archivePath))
+			.then(() => TEMP_DOWNLOADS[did] = archivePath)
+			.then(() => res.send(buildServerResponse(true, did)))
+			.catch((err) => next(err));
+	});
+
+	app.get('/download/:did', (req, res, next) => {
+		res.download(TEMP_DOWNLOADS[req.params.did]);
 	});
 
 

@@ -165,6 +165,22 @@ function deleteServer(suuid) {
 	}
 }
 
+// Downloads a world as a .zip
+function downloadWorld(suuid) {
+	if (confirm('Are you sure you want to download this world?')) {
+		fetch(`/servers/download/${suuid}`)
+			.then((response) => response.json())
+			.then((json) => {
+				if (!json.success) throw Error(json.message.message);
+				else {
+					let win = window.open(`/download/${json.message}`);
+					win.focus();
+				}
+			})
+			.catch((err) => alert(err))
+	}
+}
+
 // Ask McServerman server to query the Minecraft server so we can see if it is actually online
 // TODO: Make this work from the homepage maybe?
 function queryServer() {
