@@ -166,7 +166,7 @@ setRoutes();
 refreshActiveServers()
 	// Run the app!
 	.catch((err) => log.warn(err))
-	.then(() => app.listen(PORT, HOST, () => log.info(`Server hosted on ${HOST}:${PORT}`)));
+	.then(() => app.listen(PORT, HOST, () => (log.info(`Server hosted on ${HOST}:${PORT}`), log.info(`Click this link to open in browser: http://127.0.0.1:7767`))));
 
 
 //// Routes ////
