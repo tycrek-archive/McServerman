@@ -171,7 +171,7 @@ setRoutes();
 
 // Load server configs and import any active servers
 refreshActiveServers()
-	// Run the app!
+	// Put catch first since we CAN run if refreshActiveServers throws errors, we just want to print them
 	.catch((err) => log.warn(err))
 	.then(() => app.listen(PORT, HOST, () => (log.info(`Server hosted on ${HOST}:${PORT}`), log.info(`Click this link to open in browser: http://127.0.0.1:7767`))));
 
