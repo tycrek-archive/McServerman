@@ -152,6 +152,19 @@ function restartServer(suuid) {
 	}
 }
 
+// Deletes a server after confirming with the user
+function deleteServer(suuid) {
+	if (confirm('Are you sure you want to delete this server? This cannot be undone!')) {
+		fetch(`/servers/delete/${suuid}`)
+			.then((response) => response.json())
+			.then((json) => {
+				if (!json.success) throw Error(json.message.message);
+				else LOAD_PAGE(PAGES.home);
+			})
+			.catch((err) => alert(err))
+	}
+}
+
 // Ask McServerman server to query the Minecraft server so we can see if it is actually online
 // TODO: Make this work from the homepage maybe?
 function queryServer() {

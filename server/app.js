@@ -303,6 +303,31 @@ function setRoutes() {
 			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
+	app.get('/servers/delete/:suuid', (req, res, next) => {
+		let suuid = req.params.suuid;
+
+		// Make sure we don't delete if it's still running
+		if (ACTIVE_SERVERS.hasOwnProperty(suuid))
+			res.send(buildServerResponse(false, 'Stop the server before deleting!'));
+		else
+			getServerFromConfig(suuid)
+				// Delete the folder
+				.then((server) => fs.remove(server.directory))
+				.then(() => fs.readJson(USER_CONFIG))
+				// Remove it from the config
+				.then((json) => {
+					let servers = json.servers;
+					for (let i = 0; i < servers.length; i++)
+						if (servers[i].suuid === suuid)
+							servers.splice(i, 1);
+					json.servers = servers;
+					return json;
+				})
+				.then((json) => fs.writeJson(USER_CONFIG, json, { spaces: '\t' }))
+				.then(() => res.send(buildServerResponse(true, 'Server deleted.')))
+				.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
 	/// Start server
 	// Start a server with the given suuid. Fails to start if the server is
 	// already running.

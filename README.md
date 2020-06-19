@@ -28,10 +28,10 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 - :heavy_check_mark: GUI `server.properties` editor with explanations & recommended settings
 - :heavy_check_mark: Start/stop servers (even after McServerman has restarted!)
 - :heavy_check_mark: Restart servers
-- :x: Delete servers
+- :heavy_check_mark: Delete servers
+- :heavy_check_mark: Run Jar using Java 8 JRE
 - :x: Install & manage plugins (PaperMC/Spigot)
 - :x: Download Java 8 JRE for best compatibility
-- :heavy_check_mark: Run Jar using Java 8 JRE
 
 #### World management
 
