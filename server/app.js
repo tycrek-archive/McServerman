@@ -842,7 +842,7 @@ function getJavaVersionFromBin(bin) {
 		// can't print errors so instead we append it to output.
 		java.stdout.on('data', (out) => output += out.toString().trim());
 		java.stderr.on('data', (err) => output += err.toString().trim());
-		java.on('close', (exitCode) => exitCode != 0 ? reject() : resolve(output.includes('1.8.') ? 8 : -1));
+		java.on('close', (exitCode) => exitCode != 0 ? reject(output) : resolve(output.includes('1.8.') ? 8 : -1));
 	})
 }
 
