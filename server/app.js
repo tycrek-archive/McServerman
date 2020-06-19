@@ -753,11 +753,11 @@ function queryServer(host, port) {
 	return new Promise((resolve, reject) => {
 		Gamedig.query({
 			type: 'minecraft',
-			host: host === '' || host == null ? '0.0.0.0' : host,
+			host: host.trim() === '' || host == null ? '0.0.0.0' : host,
 			port: port
 		})
 			.then((state) => resolve(state))
-			.catch((err) => reject(err));
+			.catch((err) => (log.debug(err), reject(err)));
 	})
 }
 
