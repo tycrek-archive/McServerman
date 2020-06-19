@@ -206,7 +206,7 @@ function setRoutes() {
 	app.get('/pages/home', (_req, res, next) => {
 		fs.pathExists(USER_CONFIG)
 			.then((exists) => exists ? fs.readJson(USER_CONFIG) : {})
-			.then((config) => res.render(Object.keys(config).length !== 0 ? 'home' : 'setup', config))
+			.then((config) => res.render(Object.keys(config).length === 0 || config.servers.length === 0 ? 'setup' : 'home', config))
 			.catch((err) => next(err));
 	});
 
@@ -405,6 +405,7 @@ function refreshActiveServers() {
 			.then(() => fs.readJson(USER_CONFIG))
 			.then((config) => {
 				numServers = config.servers.length;
+				if (numServers === 0) throw Error('Empty config found!');
 				config.servers.forEach((server) => {
 					getServerProperties(server)
 						.then((p) => queryServer(p.properties['server-ip'], p.properties['query.port']))
