@@ -766,9 +766,11 @@ function queryServer(host, port) {
 function buildExperimentalFlags(version) {
 
 	// Get total and free memory in Gigabytes
-	let systemRam = os.totalmem() / 1e9;
-	let freeRam = os.freemem() / 1e9;
-	let dedicatedRam = Math.round(freeRam / MEMORY_SPLIT);
+	let RAM = {
+		system: os.totalmem() / 1e9,
+		free: os.freemem() / 1e9
+	};
+	let dedicatedRam = Math.round(RAM.free / MEMORY_SPLIT);
 
 	// Set up inital flags
 	let ramFlag = `-Xms${dedicatedRam}G -Xmx${dedicatedRam}G`;
