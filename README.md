@@ -6,7 +6,7 @@ I created this because I'm officially annoyed with managing my various servers t
 
 For now I'm only planning to add support for Vanilla and [PaperMC](https://papermc.io/) servers. If there is interest I may add more in the future (such as [Bedrock](https://minecraft.gamepedia.com/Bedrock_Edition) or [Pixelmon](https://pixelmonmod.com/wiki/index.php?title=Pixelmon)).
 
-If you like this project, consider [donating](https://www.paypal.me/jmoore235). I do all this in my spare time without making any profit so anything is appreciated!
+If you like this project, consider [donating](https://jmoore.dev/donate). I do all this in my spare time without making any profit so anything is appreciated!
 
 ## Features
 
@@ -28,7 +28,7 @@ If you like this project, consider [donating](https://www.paypal.me/jmoore235). 
 - [ ] Delete servers
 - [ ] Install & manage plugins (PaperMC/Spigot)
 - [ ] Download Java 8 JRE for best compatibility
-- [x] Run Jar using Java 8 JRE *(currently only works on Linux)*
+- [x] Run Jar using Java 8 JRE
 
 #### World management
 
@@ -80,9 +80,12 @@ If you like this project, consider [donating](https://www.paypal.me/jmoore235). 
 
 #### Requirements
 
+- Supported OS:
+  - **Linux** - Recommended
+  - **Windows** - Experimental
+  - **macOS** - Not supported
 - Latest LTS **[Node.js](https://nodejs.org/en/download/)** *(verified working with Node 13.12, but others may work as well)*
 - Also ensure **NPM** is installed and works
-- Currently only works on **Linux** *(verified working with Manjaro)*
 - Preferably at least **8GB RAM**
 - Command line experience is very helpful
 
@@ -117,7 +120,7 @@ If all goes as planned, you should see: `Server hosted on 0.0.0.0:7767`
 ## Limitations
 
 1. Development is slow because I get distracted easily.
-2. Currently only works on Linux. macOS and Windows support will probably need to be done by other developers as I don't own either system.
+2. Currently only works on Linux. macOS and ~~Windows~~ support will probably need to be done by other developers as I don't own either system. **Update**: Basic Windows support is now available
 
 ## Contributing
 
