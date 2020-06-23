@@ -806,6 +806,16 @@ function writeServerProperties(suuid, properties) {
 	});
 }
 
+// Reads a server whitelist file
+function getWhitelist(suuid) {
+	return new Promise((resolve, reject) => {
+		getServerFromConfig(suuid)
+			.then((server) => fs.readJson(path.join(server.directory, 'whitelist.json')))
+			.then((whitelist) => resolve(whitelist))
+			.catch((err) => reject(err));
+	});
+}
+
 // Builds a somewhat universal response object for any /servers/* requests
 // If the request has an error, we can pass that error as the "message" so we
 // can print it and attach it without messing around with overloaded functions.
