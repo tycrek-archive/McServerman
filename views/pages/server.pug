@@ -64,6 +64,20 @@
 						small: em No description available
 	br
 	br
+	table#whitelist-table
+		caption: code Whitelist
+		tr
+			th Player
+			th Action
+		tr
+			td: input#whitelist-new-name(type='text', name='whitelist-new-name')
+			td: button(onclick='addToWhitelist()') Add
+		each val, index in whitelist
+			tr
+				td= val.name
+				td: button(onclick=`removeFromWhitelist('${val.uuid}')`) Remove
+	br
+	br
 
 script.
 	// Run queryServer ONCE before loading the interval.
