@@ -78,6 +78,7 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 - :x: Web console with [RCON](https://en.wikipedia.org/wiki/Remote_administration) *(RCON is working; however Web console is not added yet!)*
 - :x: Mobile-friendly version
 - :x: [Progressive Web APP](https://www.howtogeek.com/342121/what-are-progressive-web-apps/) (PWA)
+- :x: Run using [paperd](https://github.com/PaperMC/paperd) on Unix systems
 
 ## Installation
 
