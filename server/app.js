@@ -840,7 +840,7 @@ function getWhitelist(suuid) {
 		getServerFromConfig(suuid)
 			.then((server) => fs.readJson(path.join(server.directory, 'whitelist.json')))
 			.then((whitelist) => resolve(whitelist))
-			.catch((err) => reject(err));
+			.catch((err) => (log.warn(err), resolve([])));
 	});
 }
 
