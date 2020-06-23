@@ -228,7 +228,11 @@ function setRoutes() {
 	// suuid("Server UUID")
 	app.get('/pages/server/:suuid', (req, res, next) => {
 		getServerFromConfig(req.params.suuid)
-			.then((server) => getServerProperties(server))
+			.then((server) => Promise.all([getServerProperties(server), getWhitelist(req.params.suuid)]))
+			.then((data) => {
+				data[0].whitelist = data[1];
+				return data[0];
+			})
 			.then((config) => res.render('server', config))
 			.catch((err) => next(err));
 	});
