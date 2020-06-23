@@ -121,6 +121,10 @@ If all goes as planned, you should see: `Server hosted on 0.0.0.0:7767`
     - **Note**: In order for McServerman to function optimally, it will force enable `enable-query` and `enable-rcon`. Make sure you set `rcon.password`, otherwise you may not be able to safely stop the server and you could lose data! If you do not set `rcon.password`, McServerman will create one for you.
 7. To stop McServerman, go to the console or terminal where you ran `node app.js` and press `CTRL-C` on your keyboard. Any active Minecraft servers will stay active, so this is usually safe.
 
+## Supported Minecraft versions
+
+*Table coming soon*
+
 ## Limitations
 
 1. Development is slow because I get distracted easily.
