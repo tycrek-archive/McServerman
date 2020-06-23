@@ -196,6 +196,28 @@ function queryServer() {
 		.catch((err) => $('#server-status').html('Offline'));
 }
 
+// Add player to whitelist
+function addToWhitelist() {
+	let suuid = $('#server-title').attr('suuid');
+	let player = $('#whitelist-new-name').val();
+	fetch(`/servers/whitelist/add/${suuid}/${player.replaceAll(/[^0-9a-zA-Z_]+/g, '')}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
+
+// Remove player from whitelist
+function removeFromWhitelist(puuid) {
+	let suuid = $('#server-title').attr('suuid');
+	fetch(`/servers/whitelist/remove/${suuid}/${puuid}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
 
 // MUST be at end of script!
 __MAIN__();

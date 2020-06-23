@@ -44,7 +44,7 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 
 #### Player operations
 
-- :x: Whitelist
+- :heavy_check_mark: Whitelist
 - :x: Blacklist *(PaperMC only)*
 - :x: "Op" and "Deop"
 - :x: Bans

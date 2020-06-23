@@ -437,6 +437,34 @@ function setRoutes() {
 		res.download(TEMP_DOWNLOADS[req.params.did]);
 	});
 
+	app.get('/servers/whitelist/add/:suuid/:player', (req, res, next) => {
+		let suuid = req.params.suuid;
+		let player = req.params.player;
+
+		Promise.all([getWhitelist(suuid), getPlayerUuid(player)])
+			.then((data) => {
+				data[0].push({ uuid: data[1], name: player });
+				return Promise.all([data[0], getServerFromConfig(suuid)]);
+			})
+			.then((data) => fs.writeJson(path.join(data[1].directory, 'whitelist.json'), data[0], { spaces: '\t' }))
+			.then(() => res.send(buildServerResponse(true, `Player ${player} added to whitelist`)))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
+	app.get('/servers/whitelist/remove/:suuid/:puuid', (req, res, next) => {
+		let suuid = req.params.suuid;
+		let puuid = req.params.puuid;
+
+		Promise.all([getWhitelist(suuid), getServerFromConfig(suuid)])
+			.then((data) => {
+				data[0].forEach((player, index) => player.uuid === puuid && data[0].splice(index, 1));
+				return ({ whitelist: data[0], file: path.join(data[1].directory, 'whitelist.json') });
+			})
+			.then((data) => fs.writeJson(data.file, data.whitelist, { spaces: '\t' }))
+			.then(() => res.send(buildServerResponse(true, 'Player removed')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
 
 	//// HTTP Errors ////
 
