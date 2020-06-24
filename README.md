@@ -5,11 +5,11 @@
 
 #### *A web-based GUI for managing Minecraft servers*
 
-I created this because I'm officially annoyed with managing my various servers through the command line. I'm also quarantined for [COVID-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019) and I am bored.
-
-For now I'm only planning to add support for Vanilla and [PaperMC](https://papermc.io/) servers. If there is interest I may add more in the future (such as [Bedrock](https://minecraft.gamepedia.com/Bedrock_Edition) or [Pixelmon](https://pixelmonmod.com/wiki/index.php?title=Pixelmon)).
+I created this because I'm annoyed with managing my various servers through the command line. I'm also quarantined for [COVID-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019) and I am bored. For now I'm only planning to add support for Vanilla and [PaperMC](https://papermc.io/) servers. If there is interest I may add more in the future (such as [Bedrock](https://minecraft.gamepedia.com/Bedrock_Edition) or [Pixelmon](https://pixelmonmod.com/wiki/index.php?title=Pixelmon)).
 
 If you like this project, consider [donating](https://jmoore.dev/donate). I do all this in my spare time without making any profit so anything is appreciated!
+
+---
 
 ## Features
 
@@ -48,7 +48,7 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 - :x: Blacklist *(PaperMC only)*
 - :x: "Op" and "Deop"
 - :x: Bans
-- :x: Run the above functions before players have ever joined using player UUID's
+- :heavy_check_mark: Run the above functions before players have ever joined using player UUID's
 - :x: List all players who have previously joined and run the above functions on them
 
 #### Statistics
@@ -80,6 +80,8 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 - :x: [Progressive Web APP](https://www.howtogeek.com/342121/what-are-progressive-web-apps/) (PWA)
 - :x: Run using [paperd](https://github.com/PaperMC/paperd) on Unix systems
 
+---
+
 ## Installation
 
 #### Requirements
@@ -87,10 +89,11 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 - Supported OS:
   - **Linux** - Recommended
   - **Windows** - Experimental
-  - **macOS** - Not supported
+  - **macOS** - Not supported but probably works
 - Latest LTS **[Node.js](https://nodejs.org/en/download/)** *(verified working with Node 13.12, but others may work as well)*
 - Also ensure both **NPM** & **Git** are installed and working
 - Preferably at least **8GB RAM** (for the Minecraft server; McServerman alone runs on a potato)
+- Java 8 64-bit (will **not** run on 32-bit. 32-bit support will not be added due to RAM limitations)
 - Command line experience is very helpful
 
 #### Installation
@@ -106,6 +109,8 @@ $ node app.js
 
 If all goes as planned, you should see: `Server hosted on 0.0.0.0:7767`
 
+---
+
 ## Usage
 
 1. After running `node app.js`, open your browser and navigate to: [localhost:7767](http://localhost:7767)
@@ -119,16 +124,24 @@ If all goes as planned, you should see: `Server hosted on 0.0.0.0:7767`
 5. Start the server by selecting **Start/Stop**. It is important that you **wait** for the Status indicator to show "Online" before stopping the server or attempting to start it again (this will be improved in the future).
 6. You can edit the `server.properties` file from the server dashboard. Make sure you click **Save changes** once you have made your edits.
     - **Note**: In order for McServerman to function optimally, it will force enable `enable-query` and `enable-rcon`. Make sure you set `rcon.password`, otherwise you may not be able to safely stop the server and you could lose data! If you do not set `rcon.password`, McServerman will create one for you.
-7. To stop McServerman, go to the console or terminal where you ran `node app.js` and press `CTRL-C` on your keyboard. Any active Minecraft servers will stay active, so this is usually safe.
+7. You can also add/remove players from the server whitelist in the table below the properties table. Make sure to also enable the whitelist in `server.properties`. To use the updated whitelist, restart your Minecraft server.
+8. To stop McServerman, go to the console or terminal where you ran `node app.js` and press `CTRL-C` on your keyboard. Any active Minecraft servers will stay active, so this is usually safe.
+
+---
 
 ## Supported Minecraft versions
 
 *Table coming soon*
 
+---
+
 ## Limitations
 
 1. Development is slow because I get distracted easily.
 2. Currently only works on Linux. macOS and ~~Windows~~ support will probably need to be done by other developers as I don't own either system. **Update**: Basic Windows support is now available
+3. 32-bit operating systems and Java are **not** supported. This is on purpose. Buy a new computer if this is a problem.
+
+---
 
 ## Contributing
 
@@ -136,7 +149,11 @@ Some stuff that would be really helpful to me:
 
 1. New features
 2. Code cleanup
-3. Translations?
+3. Security improvements
+4. Bug fixes
+5. Translations?
+
+---
 
 ## Acknowledgements
 
@@ -148,9 +165,13 @@ Some stuff that would be really helpful to me:
 - [Official Minecraft Wiki - Gamepedia](https://minecraft.gamepedia.com/Server.properties)
 - [Daniel Ennis](https://aikar.co/author/daniel-ennis-aikar/) for providing [invaluable information](https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/) on JVM garbage collection to improve running Minecraft servers
 
+---
+
 ## The name "McServerman"
 
-I thought it would be funny because it sounds like "McDonalds".
+I thought it would be funny because it sounds like "McDonalds". The full name is "Minecraft Server Manager".
+
+---
 
 ## Hotel?
 
