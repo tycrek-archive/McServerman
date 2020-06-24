@@ -9,6 +9,9 @@ I created this because I'm annoyed with managing my various servers through the 
 
 If you like this project, consider [donating](https://jmoore.dev/donate). I do all this in my spare time without making any profit so anything is appreciated!
 
+- ###### Current version: N/A (in development)
+- ###### Next version 0.1.0a
+
 ---
 
 ## Features
@@ -20,7 +23,7 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 - :heavy_check_mark: Automatically "sign" EULA
 - :x: [Bedrock Editon](https://minecraft.gamepedia.com/Bedrock_Edition) servers
 - :x: [Snapshot](https://minecraft.gamepedia.com/Tutorials/How_to_install_a_snapshot) servers
-- :x: Import existing servers
+- :x: Import existing servers ___(Required for 0.1.0a release)___
 
 #### Managing Minecraft servers
 
@@ -35,7 +38,7 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 
 #### World management
 
-- :x: Upload existing worlds
+- :x: Upload existing worlds ___(Required for 0.1.0a release)___
 - :heavy_check_mark: Download active world
 - :x: Backup/Restore
 - :x: Regenerate world
@@ -46,8 +49,8 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 
 - :heavy_check_mark: Whitelist
 - :x: Blacklist *(PaperMC only)*
-- :x: "Op" and "Deop"
-- :x: Bans
+- :x: "Op" and "Deop" ___(Required for 0.1.0a release)___
+- :x: Bans ___(Required for 0.1.0a release)___
 - :heavy_check_mark: Run the above functions before players have ever joined using player UUID's
 - :x: List all players who have previously joined and run the above functions on them
 
