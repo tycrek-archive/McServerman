@@ -40,7 +40,7 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 - :x: Backup/Restore
 - :x: Regenerate world
 - :x: World switching (example: switching between a parkour map and a survival map)
-- :x: Upgrade for new versions (example: 1.14 -> 1.15)
+- :x: Upgrade for new versions (example: 1.12 -> 1.13). See [here](https://www.beastnode.com/portal/index.php?rp=/knowledgebase/191/Optional-Server-Startup-Parameters.html) and [here](https://www.minecraftforum.net/forums/support/java-edition-support/2914616-1-13-faqs-read-before-posting) for notes on the `--forceUpgrade` flag.
 
 #### Player operations
 
@@ -70,8 +70,8 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 
 #### Awesome stuff
 
-- :x: McServerman password authentication
-- :x: McServerman [OAuth authentication](https://stackoverflow.com/questions/4201431/what-exactly-is-oauth-open-authorization) (maybe)
+- :x: password authentication
+- :x: [OAuth authentication](https://stackoverflow.com/questions/4201431/what-exactly-is-oauth-open-authorization) (maybe)
 - :x: Decent Wiki pages (installation, usage, etc.)
 - :x: Automatically set up `systemd` on Linux for McServerman
 - :x: Auto port-forward with [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play) (or a guide on port forwarding)
@@ -131,7 +131,25 @@ If all goes as planned, you should see: `Server hosted on 0.0.0.0:7767`
 
 ## Supported Minecraft versions
 
-*Table coming soon*
+Assume all versions include patch unless specified. i.e. 1.15 includes 1.15.2, etc.
+
+- ![](https://img.shields.io/badge/-supported-brightgreen) All features tested and confirmed working or stable. Even so, take this with a grain of salt until McServerman as a whole is stable.
+- ![](https://img.shields.io/badge/-experimental-orange) Briefly tested but might have problems. Use at your own risk.
+- ![](https://img.shields.io/badge/-borked-red) Tested and known to not work.
+- ![](https://img.shields.io/badge/-not%20supported-lightgrey) Not tested. Unconfirmed if anything works.
+
+| Version | Vanilla | Paper |
+| ------- | ------- | ----- |
+| 1.16 | ![](https://img.shields.io/badge/-experimental-orange) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
+| 1.15 | ![](https://img.shields.io/badge/-supported-brightgreen) | ![](https://img.shields.io/badge/-supported-brightgreen) |
+| 1.14 | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
+| 1.13 | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
+| 1.12 | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-supported-brightgreen) |
+| 1.11 | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
+| 1.10 | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
+| 1.9 | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
+| 1.8 | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
+| 1.7 & below | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
 
 ---
 
