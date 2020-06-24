@@ -1,40 +1,149 @@
+//#region imports
+
+/// fs-extra
+// A better fs module. Includes more functions and adds Promises to existing
+// fs functions
 const fs = require('fs-extra');
+
+/// os
+// For determining amount of RAM system has
 const os = require('os');
+
+/// path
+// For resolving relative paths
 const path = require('path');
+
+/// child_process
+// For running Jar files
 const { spawn } = require('child_process');
+
+/// moment
+// For tracking usage and other stuff like Timestamp manipulation
 const moment = require('moment');
+
+/// rcon
+// For sending remote commands to a running server
 const rcon = require('rcon');
+
+/// gamedig
+// For querying Minecraft servers
 const Gamedig = require('gamedig');
+
+/// process-exists
+// For checking if the server process has exited before restarting
+const procExists = require('process-exists');
+
+/// uuid
+// For identifying servers on something other than a name
+const uuid = require('uuid').v4;
+
+/// klaw
+// For "walking" directories
+const klaw = require('klaw');
+
+/// randomstring
+// For generating rcon passwords when user specifies none
+const randomstring = require('randomstring');
+
+/// node-fetch
+// Node version of fetch API from browsers. Used for downloading files and
+// scraping websites
+const fetch = require('node-fetch');
+
+/// adm-zip
+// zip/unzip world folders
+const AdmZip = require('adm-zip');
+
+/// pino (depends on: pino-pretty)
+// Good log tool (common log levels are info, warn, error, etc.)
 const log = require('pino')({
 	prettyPrint: process.env.NODE_ENV === 'production' ? false : true,
 	timestamp: () => `,"time": ${moment().format('YYYY-MM-DD hh:mm:ss A')} `
 });
 
+//#endregion
+
+//#region constants
+
+/// MEMORY_SPLIT
+// Amount of dedicated RAM for a Jar file is total free system memory divided
+// by this constant. This may need to be tweaked depending on your system!
+// For example, Windows users may want to lower this as Windows itself uses a
+// large amount of memory. On a 16GB system with 12GB free, a value of 3 gives
+// ~4GB of RAM to a single server Jar file. This may have issues with
+// experimental flags!
+const MEMORY_SPLIT = 3;
+
+/// USER_CONFIG
+// Poorly named yet very important variable. Path to where McSm's server list
+// is. Because of its importance, it will NOT go into the PATHS constant.
 const USER_CONFIG = path.join(__dirname, '..', 'config/user/config.json');
+
+/// OS_TYPES
 const OS_TYPES = {
 	linux: 0,
 	windows_nt: 1,
 	darwin: 2
 };
 
-/*
-  - start
-  - stop
-  - restart
-  - whitelist
-  - blacklist
-  - op
-  - Write properties JSON > MC DONE
-  - Read properties MC > JSON DONE
-  - query DONE
-  - eula DONE
-*/
+/// PATHS
+// Stores absolute paths for certain items based on their relative path. This
+// is mostly to avoid having ugly  path.join(__dirname, 'file')  all over the
+// codebase.
+const PATHS = {
+	static: path.join(__dirname, '..', 'static'),
+	fonts: path.join(__dirname, '..', 'fonts'),
+	pages: path.join(__dirname, '..', 'views/pages'),
+	sass: path.join(__dirname, '..', 'sass/main.scss'),
+	properties: path.join(__dirname, '..', 'config/properties.json')
+};
+
+/// JAVA_DOWNLOAD
+// A list of links to download Java for a certain platform
+const JAVA_DOWNLOAD = 'https://www.java.com/en/download/manual.jsp';
+
+/// JAVA_INSTALLATIONS
+// A collection of where Java may be installed on certain operating systems.
+// Types are from: https://nodejs.org/api/os.html#os_os_type
+// When checking against these, make sure to use os.type().toLowerCase()
+// TODO: Update windows and macos
+const JAVA_INSTALLATIONS = {
+	linux: '/usr/lib/jvm/', // All Linux-based systems
+	windows_nt: '', // Microsoft Windows based systems
+	darwin: '' // Apple macOS
+};
+
+/// DOWNLOAD_LINKS
+// Collection of links for where Jar files can be downloaded from.
+// TODO: Add 1.16 link to PaperMC once 1.16 servers are available
+// TODO: Add support for Bedrock edition, if it ever leaves Alpha stages.
+//       Current Bedrock link is also not Direct Download.
+const DOWNLOAD_LINKS = {
+	vanilla: 'https://mcversions.net/mcversions.json',
+	paper: {
+		1.15: 'https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar',
+		1.14: 'https://papermc.io/ci/job/Paper-1.14/lastSuccessfulBuild/artifact/paperclip.jar',
+		1.13: 'https://papermc.io/ci/job/Paper-1.13/lastSuccessfulBuild/artifact/paperclip.jar',
+		1.12: 'https://papermc.io/ci/job/Paper/lastSuccessfulBuild/artifact/paperclip.jar'
+	},
+	bedrock: 'https://www.minecraft.net/en-us/download/server/bedrock'
+};
+
+/// PLAYER_UUID_LINK
+// Link for where to grab info on Minecraft Player UUID's. These are helpful
+// for opping / whitelisting players before they have joined.
+const PLAYER_UUID_LINK = 'https://playerdb.co/api/player/minecraft/';
+
+//#endregion
 
 class Minecraft {
 	constructor(suuid) {
-		this.suuid = suuid;
+		this.suuid = suuid == null ? uuid() : suuid;
 	}
 
+	//#region setup/config/management
+
+	// Return config for server from USER_CONFIG
 	getConfig() {
 		return new Promise((resolve, reject) => {
 			fs.readJson(USER_CONFIG)
@@ -48,45 +157,96 @@ class Minecraft {
 		});
 	}
 
-	start() {
+	// Creates a new Minecraft server
+	create(mType, mVersion, mName) {
 		return new Promise((resolve, reject) => {
-			this.getConfig()
-				.then((config) => runJar(config.directory, config.jar, false))
-				.then(resolve())
+			let type = mType;
+			let version = mVersion;
+			let name = mName;
+			let suuid = this.suuid;
+
+			let destPath = path.join(__dirname, `../mc-servers/${name}-${type}-${version}/`);
+			let destFile = `${name}-${type}-${version}.jar`;
+			let dest = path.join(destPath, destFile);
+
+			// If the path already exists, then it probably means there is alread
+			// a server with the same name
+			fs.pathExists(destPath)
+				.then((exists) => {
+					if (exists) throw Error('Path already exists!');
+					else return;
+				})
+
+				// Create the path so we can download the Jar file
+				.then(() => fs.ensureDir(destPath))
+
+				// PaperMC has direct download links; Vanilla does not, so we need
+				// an extra step to get the DDL link.
+				.then(() => type === 'vanilla' ? getVanillaUrl(version) : DOWNLOAD_LINKS.paper[version])
+				.then((url) => downloadJar(url, dest))
+
+				// Run the Jar for the first time, ommiting the Wait flag because
+				// we want to wait for it to generate some files.
+				.then(() => runJar(destPath, destFile, suuid))
+
+				// This is why we wait for ^ to exit: we need to "sign" the EULA.
+				// It might be against Mojang's ToS to do this in code, but we
+				// should be fine. Right ?!
+				.then(() => this.signEula(path.join(destPath, 'eula.txt')))
+
+				// Write a config to USER_CONFIG with our brand new shiny server!
+				.then(() => writeUserConfig(name, version, type, suuid, destPath, destFile))
+
+				// Read/write server.properties to ensure query and RCON are
+				// enabled by default
+				.then(() => fs.readdir(destPath))
+				.then((files) => {
+					if (!files.includes('server.properties')) throw Error('Missing server.properties file!');
+					else return fs.readFile(path.join(destPath, 'server.properties'));
+				})
+				.then((bytes) => bytes.toString())
+				.then((properties) => this.writeProperties(properties))
+
+				// Create an empty whitelist file
+				.then(() => fs.ensureFile(path.join(destPath, 'whitelist.json')))
+				.then(() => fs.writeJson(path.join(destPath, 'whitelist.json'), []))
+
+				// Respond to the client
+				.then(() => resolve())
 				.catch((err) => reject(err));
 		});
 	}
 
-	stop() {
+	// Deletes the server folder and removes from USER_CONFIG
+	remove() {
 		return new Promise((resolve, reject) => {
-			this.readProperties()
-				.then((p) => ({ host: p.properties['server-ip'], port: p.properties['rcon.port'], password: p.properties['rcon.password'] }))
-				.then((conn) => sendRconCommand(conn.host, conn.port, conn.password, 'stop'));
+			this.getConfig()
+				.then((config) => fs.remove(config.directory))
+				.then(() => fs.readJson(USER_CONFIG))
+				.then((json) => {
+					let servers = json.servers;
+					for (let i = 0; i < servers.length; i++)
+						if (servers[i].suuid === this.suuid)
+							servers.splice(i, 1);
+					json.servers = servers;
+					return json;
+				})
+				.then((json) => fs.writeJson(USER_CONFIG, json, { spaces: '\t' }))
+				.then(() => resolve())
+				.then((err) => reject(err));
 		});
 	}
 
-	restart() {
-		// stop, wait, start
-	}
-
-	whitelist() {
-
-	}
-
-	blacklist() {
-
-	}
-
-	op() {
-
-	}
-
+	// Reads server.properties and returns as json. Also returns server.properties helper data
+	// and the server config from USER_CONFIG
 	readProperties() {
 		return new Promise((resolve, reject) => {
 			let server;
+			let jsonProperties = { properties: {} };
+
 			this.getConfig()
 				.then((config) => server = config)
-				.then(fs.readdir(server.directory))
+				.then(() => fs.readdir(server.directory))
 				.then((files) => {
 					if (!files.includes('server.properties')) throw Error('Missing server.properties file!');
 					else return fs.readFile(path.join(server.directory, 'server.properties'));
@@ -131,6 +291,7 @@ class Minecraft {
 		});
 	}
 
+	// Writes to server.properties. Does NOT accept json data: must already be in server.properties format
 	writeProperties(properties) {
 		return new Promise((resolve, reject) => {
 			// Force enable query and rcon
@@ -145,25 +306,177 @@ class Minecraft {
 
 			this.getConfig()
 				.then((config) => fs.writeFile(path.join(config.directory, 'server.properties'), properties))
-				.then(resolve())
+				.then(() => resolve())
 				.catch((err) => reject(err));
 		});
 	}
 
-	signEula() {
+	// Read the whitelist
+	readWhitelist() {
 		return new Promise((resolve, reject) => {
-			let eulaPath;
 			this.getConfig()
-				.then((config) => eulaPath = path.join(config.directory, 'eula.txt'))
-				.then(fs.readFile(eulaPath))
+				.then((config) => fs.readJson(path.join(config.directory, 'whitelist.json')))
+				.then((whitelist) => resolve(whitelist))
+				.catch((err) => (log.warn(err), resolve([])));
+		});
+	}
+
+	// Automatically "sign" eula.txt
+	signEula(eulaPath) {
+		return new Promise((resolve, reject) => {
+			(eulaPath == null
+				? this.getConfig().then((config) => eulaPath = path.join(config.directory, 'eula.txt'))
+				: eulaPath)
+			new Promise((resolve, reject) => {
+				eulaPath == null
+					? this.getConfig()
+						.then((config) => eulaPath = path.join(config.directory, 'eula.txt'))
+						.then(() => resolve())
+						.catch((err) => reject(err))
+					: resolve();
+			})
+				.then(() => fs.readFile(eulaPath))
 				.then((bytes) => (bytes.toString()))
 				.then((text) => text.replace('false', 'true'))
 				.then((signed) => fs.writeFile(eulaPath, signed))
-				.then(resolve())
+				.then(() => resolve())
 				.catch((err) => reject(err));
 		});
 	}
 
+	//#endregion
+
+	//#region server controls
+
+	// Start the server
+	start() {
+		return new Promise((resolve, reject) => {
+			this.getConfig()
+				.then((config) => runJar(config.directory, config.jarFile, false))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
+	// Stop the server
+	stop() {
+		return new Promise((resolve, reject) => {
+			this.readProperties()
+				.then((p) => ({ host: p.properties['server-ip'], port: p.properties['rcon.port'], password: p.properties['rcon.password'] }))
+				.then((conn) => sendRconCommand(conn.host, conn.port, conn.password, 'stop'))
+				.then((response) => log.info(`RCON reply from server ${this.suuid}: ${response}`))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
+	// Restart the server
+	restart() {
+		return new Promise((resolve, reject) => {
+			let pid;
+			this.getConfig()
+				.then((config) => fs.readFile(path.join(config.directory, '.pid')))
+				.then((bytes) => bytes.toString())
+				.then((mPid) => pid = mPid)
+				.then(() => this.stop())
+				.then(() => _waitForExit(pid))
+				.then(() => this.start())
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+
+		function _waitForExit(pid) {
+			return new Promise(async (resolve, reject) => {
+				try {
+					// First we assume that the process is already running (it
+					// should be if we made it this far)
+					let exists = true;
+
+					// While it exists, simply keep checking until it does not
+					// exist anymore
+					while (exists) {
+						log.debug(`Waiting for process [${pid}] to exit...`);
+
+						// Docs for process-exists use async/await, I might update
+						// to Promise in the future if possible
+
+						// map is a map of all processes matching pid and java. I
+						// definitely could have misread the docs (very lacking!)
+						// so I may not need to use .all and 'java'. However, it
+						// works right now so I'm not too concerned.
+						let map = await procExists.all([pid, 'java']);
+						exists = map.get(pid);
+					}
+					log.info(`Process [${pid}] has exited!`);
+					resolve();
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}
+	}
+
+	//#endregion
+
+	//#region player operations
+
+	// Add player to whitelist
+	whitelistAdd(player) {
+		return new Promise((resolve, reject) => {
+			let whitelistPath;
+			this.getConfig()
+				.then((config) => whitelistPath = path.join(config.directory, 'whitelist.json'))
+				.then(() => Promise.all([fs.readJson(whitelistPath), getPlayerUuid(player)]))
+				.then((data) => {
+					data[0].push({ uuid: data[1], name: player });
+					return data[0];
+				})
+				.then((whitelist) => fs.writeJson(whitelistPath, whitelist, { spaces: '\t' }))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
+	// Removes player from whitelist
+	whitelistRemove(puuid) {
+		return new Promise((resolve, reject) => {
+			this.getConfig()
+				.then((config) => Promise.all([fs.readJson(path.join(config.directory, 'whitelist.json')), config]))
+				.then((data) => {
+					data[0].forEach((player, index) => player.uuid === puuid && data[0].splice(index, 1));
+					return ({ whitelist: data[0], file: path.join(data[1].directory, 'whitelist.json') });
+				})
+				.then((data) => fs.writeJson(data.file, data.whitelist, { spaces: '\t' }))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
+	// Adds player to blacklist (paper/spigot only)
+	blacklistAdd() {
+
+	}
+
+	// Removes player from blacklist (paper/spigot only)
+	blacklisRemove() {
+
+	}
+
+	// Ops a player
+	op() {
+
+	}
+
+	// Deops a player
+	deop() {
+
+	}
+
+	//#endregion
+
+	//#region other
+
+	// Query the server
 	query() {
 		return new Promise((resolve, reject) => {
 			this.readProperties()
@@ -179,12 +492,67 @@ class Minecraft {
 		});
 	}
 
-	//TODO: isRunning()
+	// Returns boolean if server responded to query
+	async isRunning() {
+		try {
+			await this.query();
+			return true;
+		} catch (err) {
+			return false;
+		}
+	}
+
+	// Zips the server folder for the user to download. Should just be world eventually. TODO:
+	downloadWorld() {
+		return new Promise((resolve, reject) => {
+			let zip = new AdmZip();
+			let server;
+			let archivePath;
+			let did = uuid();
+
+			this.getConfig()
+				.then((config) => server = config)
+				.then(() => archivePath = path.join(__dirname, '../worlds/', `${server.name}-${server.version}-${moment().format('YYYY.MM.DD-HH.mm.ss')}.zip`))
+				.then(() => zip.addLocalFolder(server.directory))
+				.then(() => zip.writeZip(archivePath))
+				.then(() => resolve({ did: did, archivePath: archivePath }))
+				.catch((err) => reject(err));
+		});
+	}
+
+	//#endregion
+}
+
+// Writes JSON data to USER_CONFIG. If file does not exist, it is created.
+function writeUserConfig(name, version, type, suuid, directory, jarFile) {
+	log.info(`Writing NEW configuration to ${USER_CONFIG}`);
+	return new Promise((resolve, reject) => {
+		let config = { "servers": [] };
+		let server = { // JSON object, not JavaScript object!
+			"name": name,
+			"version": version,
+			"type": type,
+			"suuid": suuid,
+			"directory": directory,
+			"jarFile": jarFile,
+			"lastAccess": moment().valueOf(), // For sorting
+			"created": moment().valueOf()
+		};
+		fs.pathExists(USER_CONFIG)
+			.then((exists) => exists ? fs.readJson(USER_CONFIG) : config)
+			.then((mConfig) => config = mConfig)
+			.then(() => config.servers.push(server))
+			.then(() => fs.ensureFile(USER_CONFIG))
+			.then(() => fs.writeJson(USER_CONFIG, config, { spaces: '\t' }))
+			.then(() => log.info('Done writing config!'))
+			.then(() => resolve())
+			.catch((err) => reject(err));
+	});
 }
 
 function sendRconCommand(host, port, password, command) {
 	return new Promise((resolve, reject) => {
-		host = host.trim() = '' || host == null ? '0.0.0.0' : host;
+		host = host.trim() === '' || host == null ? '0.0.0.0' : host;
 
 		let conn = new rcon(host, port, password);
 		conn.connect();
@@ -197,7 +565,51 @@ function sendRconCommand(host, port, password, command) {
 	});
 }
 
+// Gets a player UUID for whitelist/blacklist/op/etc. operations before the
+// player has joined the server.
+function getPlayerUuid(name) {
+	log.info(`Attempting to grab UUID for Player '${name}`);
+	return new Promise((resolve, reject) => {
+		fetch(PLAYER_UUID_LINK + name)
+			.then((response) => response.json())
+			.then((json) => {
+				if (json.error) throw Error(json.message);
+				else return json.data.player.id;
+			})
+			.then((puuid) => resolve(puuid))
+			.catch((err) => reject(err));
+	});
+}
+
 //#region java
+
+function getVanillaUrl(version) {
+	return new Promise((resolve, reject) => {
+		fetch(DOWNLOAD_LINKS.vanilla)
+			.then((response) => response.json())
+			.then((json) => json.stable[version].server)
+			.then((url) => resolve(url))
+			.catch((err) => reject(err));
+	});
+}
+
+function downloadJar(source, dest) {
+	return new Promise((resolve, reject) => {
+		let startTime = moment().valueOf(), endTime;
+		fetch(source)
+			.then((response) => {
+				let stream = response.body.pipe(fs.createWriteStream(dest));
+				return new Promise((resolve, reject) => {
+					stream.on('finish', () => resolve());
+					stream.on('error', (err) => reject(err));
+				});
+			})
+			.then(() => endTime = moment().valueOf())
+			.then(() => log.info(`Server Jar downloaded to ${dest}, taking ${(endTime - startTime) / 1000} seconds`))
+			.then(() => resolve())
+			.catch((err) => reject(err));
+	});
+}
 
 function runJar(directory, jar, wait = true, useExperimentalFlags = true) {
 	return new Promise((resolve, reject) => {
@@ -289,7 +701,7 @@ function walkDir(dir) {
 	});
 }
 
-function getJavaVersionFromBin() {
+function getJavaVersionFromBin(bin) {
 	return new Promise((resolve, reject) => {
 		let args = ['-d64', '-version'];
 		let options = { windowsHide: true, detached: true };
@@ -340,3 +752,4 @@ function buildExperimentalFlags(version) {
 
 //#endregion
 
+module.exports = Minecraft;
