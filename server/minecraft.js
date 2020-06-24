@@ -504,7 +504,8 @@ class Minecraft {
 		}
 	}
 
-	// Zips the server folder for the user to download. Should just be world eventually. TODO:
+	// Zips the server folder for the user to download.
+	// TODO: Should just be world eventually.
 	downloadWorld() {
 		log.info(`Packaging server ${this.suuid} for download`);
 		return new Promise((resolve, reject) => {
@@ -735,8 +736,9 @@ function buildExperimentalFlags(version) {
 		free: os.freemem() / 1e9
 	};
 	let dedicatedRam = Math.round(RAM.free / MEMORY_SPLIT);
-	//TODO: Improve ram selection
-	//TODO: Allow
+	// TODO: Improve ram selection to use system but fallback to free if unable to use system
+	// TODO: Allow user to pick deditated wam
+	// TODO: Potentially change variable name to deditatedWam
 
 	// Set up inital flags
 	let ramFlag = `-Xms${dedicatedRam}G -Xmx${dedicatedRam}G`;

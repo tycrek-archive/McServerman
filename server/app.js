@@ -335,7 +335,7 @@ function renderSass(res, next) {
 function buildServerResponse(s, m, d = {}) {
 	!s && m !== 'Failed all 1 attempts' && log.warn(m);
 	if (typeof (m) === typeof (Object)) m = Object(m).toString();
-	return { success: s, message: m, data: d }; //TODO: Fix the got damn errors!!!!!!!
+	return { success: s, message: m, data: d }; // TODO: Fix the got damn errors!!!!!!!
 }
 
 

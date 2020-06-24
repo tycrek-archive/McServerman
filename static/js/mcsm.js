@@ -190,8 +190,8 @@ function queryServer() {
 		.then((response) => response.json())
 		.then((json) => {
 			if (!json.success) throw Error('Failed');
-			$('#server-status').html('Online'); //TODO: play with states from https://github.com/sonicsnes/node-gamedig
-			$('#server-players').html(`${json.data.players.length}/${json.data.maxplayers}`); //FIXME: Length shows too many players
+			$('#server-status').html('Online'); // TODO: play with states from https://github.com/sonicsnes/node-gamedig
+			$('#server-players').html(`${json.data.players.length}/${json.data.maxplayers}`); // FIXME: Length shows too many players
 		})
 		.catch((err) => $('#server-status').html('Offline'));
 }
