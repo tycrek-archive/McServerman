@@ -1,8 +1,7 @@
 //#region imports
 
 /// fs-extra
-// A better fs module. Includes more functions and adds Promises to existing
-// fs functions
+// A better fs module. Includes more functions and adds Promises to existing fs functions
 const fs = require('fs-extra');
 
 /// os
@@ -46,8 +45,7 @@ const klaw = require('klaw');
 const randomstring = require('randomstring');
 
 /// node-fetch
-// Node version of fetch API from browsers. Used for downloading files and
-// scraping websites
+// Node version of fetch API from browsers. Used for downloading files and scraping websites
 const fetch = require('node-fetch');
 
 /// adm-zip
@@ -55,7 +53,7 @@ const fetch = require('node-fetch');
 const AdmZip = require('adm-zip');
 
 /// pino (depends on: pino-pretty)
-// Good log tool (common log levels are info, warn, error, etc.)
+// Good log tool (common log levels are info, warn, error, etc.) Note: don't change timestamp
 const log = require('pino')({
 	prettyPrint: process.env.NODE_ENV === 'production' ? false : true,
 	timestamp: () => `,"time": ${moment().format('YYYY-MM-DD hh:mm:ss A')} `
@@ -148,6 +146,7 @@ class Minecraft {
 		return new Promise((resolve, reject) => {
 			fs.readJson(USER_CONFIG)
 				.then((json) => {
+					// Iterate over all servers in config and match SUUID's
 					for (let i = 0; i < json.servers.length; i++)
 						if (json.servers[i].suuid === this.suuid)
 							resolve(json.servers[i]);
@@ -159,18 +158,18 @@ class Minecraft {
 
 	// Creates a new Minecraft server
 	create(mType, mVersion, mName) {
+		log.info(`Creating new server "${mName}" with type/version ${mType}/${mVersion}`);
 		return new Promise((resolve, reject) => {
+			let suuid = this.suuid;
 			let type = mType;
 			let version = mVersion;
 			let name = mName;
-			let suuid = this.suuid;
 
 			let destPath = path.join(__dirname, `../mc-servers/${name}-${type}-${version}/`);
 			let destFile = `${name}-${type}-${version}.jar`;
 			let dest = path.join(destPath, destFile);
 
-			// If the path already exists, then it probably means there is alread
-			// a server with the same name
+			// If the path already exists, then it probably means there is already a server with the same name
 			fs.pathExists(destPath)
 				.then((exists) => {
 					if (exists) throw Error('Path already exists!');
@@ -180,13 +179,11 @@ class Minecraft {
 				// Create the path so we can download the Jar file
 				.then(() => fs.ensureDir(destPath))
 
-				// PaperMC has direct download links; Vanilla does not, so we need
-				// an extra step to get the DDL link.
+				// PaperMC has direct download links; Vanilla does not, so we need an extra step to get the DDL link.
 				.then(() => type === 'vanilla' ? getVanillaUrl(version) : DOWNLOAD_LINKS.paper[version])
 				.then((url) => downloadJar(url, dest))
 
-				// Run the Jar for the first time, ommiting the Wait flag because
-				// we want to wait for it to generate some files.
+				// Run the Jar for the first time, ommiting the Wait flag because we want to wait for it to generate some files.
 				.then(() => runJar(destPath, destFile, suuid))
 
 				// This is why we wait for ^ to exit: we need to "sign" the EULA.
@@ -197,8 +194,7 @@ class Minecraft {
 				// Write a config to USER_CONFIG with our brand new shiny server!
 				.then(() => writeUserConfig(name, version, type, suuid, destPath, destFile))
 
-				// Read/write server.properties to ensure query and RCON are
-				// enabled by default
+				// Read/write server.properties to ensure query and RCON are enabled by default
 				.then(() => fs.readdir(destPath))
 				.then((files) => {
 					if (!files.includes('server.properties')) throw Error('Missing server.properties file!');
@@ -219,6 +215,7 @@ class Minecraft {
 
 	// Deletes the server folder and removes from USER_CONFIG
 	remove() {
+		log.info(`Removing server ${this.suuid}`);
 		return new Promise((resolve, reject) => {
 			this.getConfig()
 				.then((config) => fs.remove(config.directory))
@@ -253,9 +250,7 @@ class Minecraft {
 				})
 				.then((bytes) => bytes.toString())
 				.then((properties) => {
-					// Split the server.properties file by newline to parse each
-					// rule
-
+					// Split the server.properties file by newline to parse each rule
 					properties.split('\n').forEach((property) => {
 
 						// Remove any whitespace
@@ -270,8 +265,7 @@ class Minecraft {
 						// Key is obviously the first
 						let key = splitProp[0];
 
-						// Splice to remove key (.pop() did not work) and rejoin if
-						// MOTD has = in it
+						// Splice to remove key (.pop() did not work) and rejoin if MOTD has = in it
 						let value = splitProp.splice(1).join('=');
 
 						// Add rule to JSON
@@ -281,8 +275,7 @@ class Minecraft {
 					// Also provide our server information for the dashboard
 					jsonProperties['__server__'] = server;
 
-					// Read the Properties helper file as it contains defaults,
-					// types, and descriptions.
+					// Read the Properties helper file as it contains defaults, types, and descriptions.
 					return fs.readJson(PATHS.properties);
 				})
 				.then((propertyInfo) => jsonProperties['__info__'] = propertyInfo)
@@ -293,6 +286,7 @@ class Minecraft {
 
 	// Writes to server.properties. Does NOT accept json data: must already be in server.properties format
 	writeProperties(properties) {
+		log.info(`Writing server.properties for ${this.suuid}`);
 		return new Promise((resolve, reject) => {
 			// Force enable query and rcon
 			properties = properties.replace('enable-query=false', 'enable-query=true');
@@ -313,7 +307,7 @@ class Minecraft {
 
 	// Read the whitelist
 	readWhitelist() {
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve, _reject) => {
 			this.getConfig()
 				.then((config) => fs.readJson(path.join(config.directory, 'whitelist.json')))
 				.then((whitelist) => resolve(whitelist))
@@ -323,10 +317,12 @@ class Minecraft {
 
 	// Automatically "sign" eula.txt
 	signEula(eulaPath) {
+		log.info(`Signing eula.txt for ${this.suuid}`);
 		return new Promise((resolve, reject) => {
+			// TODO: Figure out wtf is happening in here
 			(eulaPath == null
 				? this.getConfig().then((config) => eulaPath = path.join(config.directory, 'eula.txt'))
-				: eulaPath)
+				: eulaPath);
 			new Promise((resolve, reject) => {
 				eulaPath == null
 					? this.getConfig()
@@ -350,6 +346,7 @@ class Minecraft {
 
 	// Start the server
 	start() {
+		log.info(`Starting server ${this.suuid}`);
 		return new Promise((resolve, reject) => {
 			this.getConfig()
 				.then((config) => runJar(config.directory, config.jarFile, false))
@@ -359,7 +356,8 @@ class Minecraft {
 	}
 
 	// Stop the server
-	stop() {
+	stop() { // TODO: don't resolve until pid has exited
+		log.info(`Stopping server ${this.suuid}`);
 		return new Promise((resolve, reject) => {
 			this.readProperties()
 				.then((p) => ({ host: p.properties['server-ip'], port: p.properties['rcon.port'], password: p.properties['rcon.password'] }))
@@ -372,6 +370,7 @@ class Minecraft {
 
 	// Restart the server
 	restart() {
+		log.info(`Restarting server ${this.suuid}`);
 		return new Promise((resolve, reject) => {
 			let pid;
 			this.getConfig()
@@ -422,6 +421,7 @@ class Minecraft {
 
 	// Add player to whitelist
 	whitelistAdd(player) {
+		log.info(`Added player "${player}" to whitelist for server ${this.suuid}`);
 		return new Promise((resolve, reject) => {
 			let whitelistPath;
 			this.getConfig()
@@ -439,6 +439,7 @@ class Minecraft {
 
 	// Removes player from whitelist
 	whitelistRemove(puuid) {
+		log.info(`Removed player "${player}" from whitelist for server ${this.suuid}`);
 		return new Promise((resolve, reject) => {
 			this.getConfig()
 				.then((config) => Promise.all([fs.readJson(path.join(config.directory, 'whitelist.json')), config]))
@@ -458,7 +459,7 @@ class Minecraft {
 	}
 
 	// Removes player from blacklist (paper/spigot only)
-	blacklisRemove() {
+	blacklistRemove() {
 
 	}
 
@@ -493,6 +494,7 @@ class Minecraft {
 	}
 
 	// Returns boolean if server responded to query
+	// Functions that call isRunning() also need to be async and call with await isRunning()
 	async isRunning() {
 		try {
 			await this.query();
@@ -504,6 +506,7 @@ class Minecraft {
 
 	// Zips the server folder for the user to download. Should just be world eventually. TODO:
 	downloadWorld() {
+		log.info(`Packaging server ${this.suuid} for download`);
 		return new Promise((resolve, reject) => {
 			let zip = new AdmZip();
 			let server;
@@ -525,7 +528,7 @@ class Minecraft {
 
 // Writes JSON data to USER_CONFIG. If file does not exist, it is created.
 function writeUserConfig(name, version, type, suuid, directory, jarFile) {
-	log.info(`Writing NEW configuration to ${USER_CONFIG}`);
+	log.info(`Writing configuration to ${USER_CONFIG}`);
 	return new Promise((resolve, reject) => {
 		let config = { "servers": [] };
 		let server = { // JSON object, not JavaScript object!
@@ -535,7 +538,7 @@ function writeUserConfig(name, version, type, suuid, directory, jarFile) {
 			"suuid": suuid,
 			"directory": directory,
 			"jarFile": jarFile,
-			"lastAccess": moment().valueOf(), // For sorting
+			"lastAccess": moment().valueOf(), // For sorting (has yet to be implemented)
 			"created": moment().valueOf()
 		};
 		fs.pathExists(USER_CONFIG)
@@ -551,7 +554,7 @@ function writeUserConfig(name, version, type, suuid, directory, jarFile) {
 }
 
 function sendRconCommand(host, port, password, command) {
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve, _reject) => {
 		host = host.trim() === '' || host == null ? '0.0.0.0' : host;
 
 		let conn = new rcon(host, port, password);
@@ -568,7 +571,7 @@ function sendRconCommand(host, port, password, command) {
 // Gets a player UUID for whitelist/blacklist/op/etc. operations before the
 // player has joined the server.
 function getPlayerUuid(name) {
-	log.info(`Attempting to grab UUID for Player '${name}`);
+	log.info(`Fetching UUID for player "${name}"`);
 	return new Promise((resolve, reject) => {
 		fetch(PLAYER_UUID_LINK + name)
 			.then((response) => response.json())
@@ -584,6 +587,7 @@ function getPlayerUuid(name) {
 //#region java
 
 function getVanillaUrl(version) {
+	log.info(`Fetching Vanilla URL for version ${version}`);
 	return new Promise((resolve, reject) => {
 		fetch(DOWNLOAD_LINKS.vanilla)
 			.then((response) => response.json())
@@ -594,6 +598,7 @@ function getVanillaUrl(version) {
 }
 
 function downloadJar(source, dest) {
+	log.info(`Download jar file from ${source} to ${dest}`);
 	return new Promise((resolve, reject) => {
 		let startTime = moment().valueOf(), endTime;
 		fetch(source)
@@ -612,6 +617,7 @@ function downloadJar(source, dest) {
 }
 
 function runJar(directory, jar, wait = true, useExperimentalFlags = true) {
+	log.info(`Running jar file ${jar} in ${directory}`);
 	return new Promise((resolve, reject) => {
 
 		// Set up the subprocess
@@ -629,8 +635,6 @@ function runJar(directory, jar, wait = true, useExperimentalFlags = true) {
 			.then(() => fs.ensureFile(path.join(directory, '.pid')))
 			.then(() => fs.writeFile(path.join(directory, '.pid'), java.pid))
 			.then(() => {
-				//ACTIVE_SERVERS[suuid] = java.pid;
-
 				// Print stdout and stderr
 				java.stdout.on('data', (out) => log.info(`[${java.pid}] stdout: ${out.toString().trim()}`));
 				java.stderr.on('data', (err) => log.error(`[${java.pid}] stderr: ${err.toString().trim()}`));
@@ -639,14 +643,18 @@ function runJar(directory, jar, wait = true, useExperimentalFlags = true) {
 				// This typically only happens on first time run to generate
 				// the EULA and server.properties
 				java.on('close', (exitCode) => {
-
-					// Make sure we delete it from the active servers since it
-					// is no longer active
-					//delete ACTIVE_SERVERS[suuid];
-
 					let msg = `Child process [${java.pid}] exited with code ${exitCode}`;
-					wait ? (exitCode != 0 ? reject(log.warn(msg)) : resolve(log.info(msg))) : (exitCode != 0 ? log.warn(msg) : log.info(msg));
+					wait
+						? (exitCode != 0
+							? reject(log.warn(msg))
+							: resolve(log.info(msg))
+						)
+						: (exitCode != 0
+							? log.warn(msg)
+							: log.info(msg)
+						);
 				});
+
 				if (!wait) resolve();
 			})
 			.catch((err) => {
@@ -661,7 +669,7 @@ function runJar(directory, jar, wait = true, useExperimentalFlags = true) {
 function getJavaPath() {
 	return new Promise((resolve, reject) => {
 		let system = os.type().toLowerCase();
-		if (system = OS_TYPES.windows_nt) {
+		if (system = OS_TYPES.windows_nt) { // This shouldn't work but it does so idk
 			getJavaVersionFromBin('java')
 				.then((version) => {
 					if (version) resolve('java');
@@ -672,7 +680,7 @@ function getJavaPath() {
 			fs.pathExists(JAVA_INSTALLATIONS[system])
 				.then((exists) => {
 					if (!exists) throw Error('No java installation found!');
-					else return fs.readdir(JAVA_INSTALLATIONS[system])
+					else return fs.readdir(JAVA_INSTALLATIONS[system]);
 				})
 				.then((list) => {
 					for (let i = 0; i < list.length; i++)
@@ -697,13 +705,13 @@ function walkDir(dir) {
 		klaw(dir, { depthLimit: 4 }) // Might be too much or too little!
 			.on('data', (item) => items.push(item))
 			.on('end', () => resolve(items))
-			.on('error', (err, item) => reject(err));
+			.on('error', (err, _item) => reject(err));
 	});
 }
 
 function getJavaVersionFromBin(bin) {
 	return new Promise((resolve, reject) => {
-		let args = ['-d64', '-version'];
+		let args = ['-d64', '-version']; // -d64 is to check 64-bit java. 32-bit not supported due to RAM limitations
 		let options = { windowsHide: true, detached: true };
 		let java = spawn(bin, args, options);
 
@@ -727,10 +735,33 @@ function buildExperimentalFlags(version) {
 		free: os.freemem() / 1e9
 	};
 	let dedicatedRam = Math.round(RAM.free / MEMORY_SPLIT);
+	//TODO: Improve ram selection
+	//TODO: Allow
 
 	// Set up inital flags
 	let ramFlag = `-Xms${dedicatedRam}G -Xmx${dedicatedRam}G`;
-	let flags = '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=8 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -Dusing.aikars.flags=true -Daikars.new.flags=true';
+	let flags = [
+		'-XX:+UseG1GC',
+		'-XX:+ParallelRefProcEnabled',
+		'-XX:MaxGCPauseMillis=200',
+		'-XX:+UnlockExperimentalVMOptions',
+		'-XX:+DisableExplicitGC',
+		'-XX:-OmitStackTraceInFastThrow',
+		'-XX:+AlwaysPreTouch',
+		'-XX:G1NewSizePercent=30',
+		'-XX:G1MaxNewSizePercent=40',
+		'-XX:G1HeapRegionSize=8M',
+		'-XX:G1ReservePercent=20',
+		'-XX:G1HeapWastePercent=5',
+		'-XX:G1MixedGCCountTarget=8',
+		'-XX:InitiatingHeapOccupancyPercent=15',
+		'-XX:G1MixedGCLiveThresholdPercent=90',
+		'-XX:G1RSetUpdatingPauseTimePercent=5',
+		'-XX:SurvivorRatio=32',
+		'-XX:MaxTenuringThreshold=1',
+		'-Dusing.aikars.flags=true',
+		'-Daikars.new.flags=true'
+	].join(' ');
 
 	// Adjust flags for more than 12GB dedicated RAM
 	if (dedicatedRam > 12) {
@@ -740,12 +771,13 @@ function buildExperimentalFlags(version) {
 		flags = flags.replace('-XX:G1ReservePercent=20', '-XX:G1ReservePercent=15');
 		flags = flags.replace('-XX:InitiatingHeapOccupancyPercent=15', '-XX:InitiatingHeapOccupancyPercent=20');
 	}
+
 	// Improve GC logging for certain Java version
 	if (version >= 8 && version <= 10) flags += ' -Xloggc:gc.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=1M';
 	if (version == 8) flags += ' -XX:+UseLargePagesInMetaspace';
 
-	// NOTE: java 11+ is purposely broken as I cannot guarantee stability
-	if ('java=11+' === 'this will NOT work') flags += ' -Xlog:gc*:logs/gc.log:time,uptime:filecount=5,filesize=1M';
+	// NOTE: java 11+ is purposely broken as I cannot guarantee stability and some versions won't work at all with 11
+	if ('java=11+' === 'this will not work') flags += ' -Xlog:gc*:logs/gc.log:time,uptime:filecount=5,filesize=1M';
 
 	return `${ramFlag} ${flags}`.split(' ');
 }

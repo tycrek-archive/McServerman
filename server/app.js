@@ -109,7 +109,7 @@ function setRoutes() {
 	app.get('/', (_req, res) => res.render('index'));
 
 	/// CSS
-	// When client wants CSS, we render it on demand(aside from internal
+	// When client wants CSS, we render it on demand (aside from internal
 	// caching)
 	app.get('/css', (_req, res, next) => renderSass(res, next));
 
@@ -156,18 +156,17 @@ function setRoutes() {
 
 	/// Download
 	// Downloads whatever is linked to did ("download ID")
+	// TODO: Clear downloads folder on startup
 	app.get('/download/:did', (req, res, _next) => {
-		res.download(TEMP_DOWNLOADS[req.params.did]);
+		res.download(TEMP_DOWNLOADS[req.params.did], (err) => {
+			err == null && log.warn(err);
+			if (res.headersSent) fs.remove(TEMP_DOWNLOADS[req.params.did]);
+		});
 	});
 
 
 	//// Server management routes ////
-	// These calls MUST return json type. The JSON object should have the
-	// following keys:
-	//  success: boolean (if successful. If false, client triggers a catch())
-	//  msg: string (Can be error message or status message)
-	//  ***: any (any other object may be attached if it suites the function
-	//       calling the route).
+	// Typically these will all call res.send(buildServerResponse()) except in specific cases
 
 	/// New Server
 	app.get('/servers/new/:type/:version/:name', (req, res, _next) => {
@@ -193,6 +192,7 @@ function setRoutes() {
 			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
+	// Delete server
 	app.get('/servers/delete/:suuid', async (req, res, _next) => {
 		let suuid = req.params.suuid;
 		let mc = SERVERS[suuid];
@@ -242,7 +242,7 @@ function setRoutes() {
 		mc.restart()
 			.then(() => res.send(buildServerResponse(true, 'Server restarted!')))
 			.catch((err) => res.send(buildServerResponse(false, err)));
-	})
+	});
 
 	/// Query a (hopefully running) server
 	// Query a server to check if it is online using Gamedig:
@@ -267,7 +267,6 @@ function setRoutes() {
 			.then(() => TEMP_DOWNLOADS[dl.did] = dl.archivePath)
 			.then(() => res.send(buildServerResponse(true, dl.did)))
 			.catch((err) => next(err));
-
 	});
 
 	// Adds player to whitelist
@@ -294,6 +293,7 @@ function setRoutes() {
 
 
 	//// HTTP Errors ////
+	// TODO: Maybe use actual pages instead of just generic text?
 
 	/// HTTP 404
 	app.use((_req, res) => res.status(404).send('404 NOT FOUND'));
@@ -335,7 +335,7 @@ function renderSass(res, next) {
 function buildServerResponse(s, m, d = {}) {
 	!s && m !== 'Failed all 1 attempts' && log.warn(m);
 	if (typeof (m) === typeof (Object)) m = Object(m).toString();
-	return { success: s, message: m, data: d };//TODO: Fix the got damn errors!!!!!!!
+	return { success: s, message: m, data: d }; //TODO: Fix the got damn errors!!!!!!!
 }
 
 
