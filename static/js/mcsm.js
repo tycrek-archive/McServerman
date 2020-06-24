@@ -191,7 +191,7 @@ function queryServer() {
 		.then((json) => {
 			if (!json.success) throw Error('Failed');
 			$('#server-status').html('Online'); // TODO: play with states from https://github.com/sonicsnes/node-gamedig
-			$('#server-players').html(`${json.data.players.length}/${json.data.maxplayers}`); // FIXME: Length shows too many players
+			$('#server-players').html(`${json.data.players.length - 1}/${json.data.maxplayers}`);
 		})
 		.catch((err) => $('#server-status').html('Offline'));
 }
