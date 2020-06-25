@@ -190,6 +190,8 @@ function queryServer() {
 		.then((response) => response.json())
 		.then((json) => {
 			if (!json.success) throw Error('Failed');
+			let playerCount = json.data.players.length;
+			playerCount > 1 && playerCount -= 1;//TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:
 			$('#server-status').html('Online'); // TODO: play with states from https://github.com/sonicsnes/node-gamedig
 			$('#server-players').html(`${json.data.players.length - 1}/${json.data.maxplayers}`);
 		})
