@@ -219,5 +219,28 @@ function removeFromWhitelist(puuid) {
 		});
 }
 
+// Add player to op
+function addToOp() {
+	let suuid = $('#server-title').attr('suuid');
+	let player = $('#op-new-name').val();
+	fetch(`/servers/op/add/${suuid}/${player.replaceAll(/[^0-9a-zA-Z_]+/g, '')}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
+
+// Remove player from op
+function removeFromOp(puuid) {
+	let suuid = $('#server-title').attr('suuid');
+	fetch(`/servers/op/remove/${suuid}/${puuid}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
+
 // MUST be at end of script!
 __MAIN__();
