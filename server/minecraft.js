@@ -469,16 +469,6 @@ class Minecraft {
 		});
 	}
 
-	// Adds player to blacklist (paper/spigot only)
-	blacklistAdd() {
-
-	}
-
-	// Removes player from blacklist (paper/spigot only)
-	blacklistRemove() {
-
-	}
-
 	// Ops a player
 	opAdd(player) {
 		log.info(`Adding player "${player}" to op for server ${this.suuid}`);
@@ -611,7 +601,7 @@ function sendRconCommand(host, port, password, command) {
 	});
 }
 
-// Gets a player UUID for whitelist/blacklist/op/etc. operations before the
+// Gets a player UUID for whitelist/op/ban/etc. operations before the
 // player has joined the server.
 function getPlayerUuid(name) {
 	log.info(`Fetching UUID for player "${name}"`);

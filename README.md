@@ -48,7 +48,6 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 #### Player operations
 
 - :heavy_check_mark: Whitelist
-- :x: Blacklist *(PaperMC only)*
 - :heavy_check_mark: "Op" and "Deop"
 - :x: Bans ___(Required for 0.1.0a release)___
 - :heavy_check_mark: Run the above functions before players have ever joined using player UUID's
