@@ -100,16 +100,18 @@
 					th Player
 					th Reason
 					th Banned on
+					th Banned by
 					th Action
 				tr
 					td: input#ban-player-name(type='text')
-					td(colspan=2): input#ban-player-reason(type='text')
+					td(colspan=3): input#ban-player-reason(type='text')
 					td: button(onclick='banPlayer()') Ban
 				each val, index in bans.players
 					tr
 						td= val.name
 						td= val.reason
 						td= val.created
+						td= val.source
 						td: button(onclick=`unbanPlayer('${val.uuid}')`) Unban
 		br
 		br
@@ -120,6 +122,7 @@ script.
 	queryServer();
 	var statusInterval = setInterval(queryServer, 5000);
 
+	// Animated scroll to player management
 	$("#player-button").click(() => {
 		$([document.documentElement, document.body]).animate({
 			scrollTop: $("#player-management").offset().top
