@@ -207,6 +207,10 @@ class Minecraft {
 				.then(() => fs.ensureFile(path.join(destPath, 'whitelist.json')))
 				.then(() => fs.writeJson(path.join(destPath, 'whitelist.json'), []))
 
+				// Create an empty ops file
+				.then(() => fs.ensureFile(path.join(destPath, 'ops.json')))
+				.then(() => fs.writeJson(path.join(destPath, 'ops.json'), []))
+
 				// Respond to the client
 				.then(() => resolve())
 				.catch((err) => reject(err));
@@ -311,6 +315,16 @@ class Minecraft {
 			this.getConfig()
 				.then((config) => fs.readJson(path.join(config.directory, 'whitelist.json')))
 				.then((whitelist) => resolve(whitelist))
+				.catch((err) => (log.warn(err), resolve([])));
+		});
+	}
+
+	// Reads ops
+	readOps() {
+		return new Promise((resolve, _reject) => {
+			this.getConfig()
+				.then((config) => fs.readJson(path.join(config.directory, 'ops.json')))
+				.then((ops) => resolve(ops))
 				.catch((err) => (log.warn(err), resolve([])));
 		});
 	}
@@ -421,7 +435,7 @@ class Minecraft {
 
 	// Add player to whitelist
 	whitelistAdd(player) {
-		log.info(`Added player "${player}" to whitelist for server ${this.suuid}`);
+		log.info(`Adding player "${player}" to whitelist for server ${this.suuid}`);
 		return new Promise((resolve, reject) => {
 			let whitelistPath;
 			this.getConfig()
@@ -439,15 +453,17 @@ class Minecraft {
 
 	// Removes player from whitelist
 	whitelistRemove(puuid) {
-		log.info(`Removed player "${player}" from whitelist for server ${this.suuid}`);
+		log.info(`Removing player "${puuid}" from whitelist for server ${this.suuid}`);
 		return new Promise((resolve, reject) => {
+			let whitelistPath;
 			this.getConfig()
-				.then((config) => Promise.all([fs.readJson(path.join(config.directory, 'whitelist.json')), config]))
-				.then((data) => {
-					data[0].forEach((player, index) => player.uuid === puuid && data[0].splice(index, 1));
-					return ({ whitelist: data[0], file: path.join(data[1].directory, 'whitelist.json') });
+				.then((config) => whitelistPath = path.join(config.directory, 'whitelist.json'))
+				.then(() => fs.readJson(whitelistPath))
+				.then((whitelist) => {
+					whitelist.forEach((player, index) => player.uuid === puuid && whitelist.splice(index, 1));
+					return whitelist;
 				})
-				.then((data) => fs.writeJson(data.file, data.whitelist, { spaces: '\t' }))
+				.then((whitelist) => fs.writeJson(whitelist, whitelistPath, { spaces: '\t' }))
 				.then(() => resolve())
 				.catch((err) => reject(err));
 		});
@@ -464,13 +480,39 @@ class Minecraft {
 	}
 
 	// Ops a player
-	op() {
-
+	opAdd(player) {
+		log.info(`Adding player "${player}" to op for server ${this.suuid}`);
+		return new Promise((resolve, reject) => {
+			let opPath;
+			this.getConfig()
+				.then((config) => opPath = path.join(config.directory, 'ops.json'))
+				.then(() => Promise.all([fs.readJson(opPath), getPlayerUuid(player), this.readProperties()]))
+				.then((data) => {
+					data[0].push({ uuid: data[1], name: player, level: data[2].properties['op-permission-level'] });
+					return data[0];
+				})
+				.then((oplist) => fs.writeJson(opPath, oplist, { spaces: '\t' }))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
 	}
 
 	// Deops a player
-	deop() {
-
+	opRemove(puuid) {
+		log.info(`Removing player "${puuid}" from op for server ${this.suuid}`);
+		return new Promise((resolve, reject) => {
+			let opPath;
+			this.getConfig()
+				.then((config) => opPath = path.join(config.directory, 'ops.json'))
+				.then(() => fs.readJson(opPath))
+				.then((ops) => {
+					ops.forEach((player, index) => player.uuid === puuid && ops.splice(index, 1));
+					return ops;
+				})
+				.then((ops) => fs.writeJson(opPath, ops, { spaces: '\t' }))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
 	}
 
 	//#endregion

@@ -142,9 +142,10 @@ function setRoutes() {
 	app.get('/pages/server/:suuid', (req, res, next) => {
 		let mc = SERVERS[req.params.suuid];
 
-		Promise.all([mc.readProperties(), mc.readWhitelist()])
+		Promise.all([mc.readProperties(), mc.readWhitelist(), mc.readOps()])
 			.then((data) => {
 				data[0].whitelist = data[1];
+				data[0].ops = data[2];
 				return data[0];
 			})
 			.then((config) => res.render('server', config))
@@ -288,6 +289,28 @@ function setRoutes() {
 
 		mc.whitelistRemove(puuid)
 			.then(() => res.send(buildServerResponse(true, 'Player removed from whitelist')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
+	// Adds player to op
+	app.get('/servers/op/add/:suuid/:player', (req, res, _next) => {
+		let suuid = req.params.suuid;
+		let player = req.params.player;
+		let mc = SERVERS[suuid];
+
+		mc.opAdd(player)
+			.then(() => res.send(buildServerResponse(true, `Player ${player} added to op`)))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
+	// Removes player from op
+	app.get('/servers/op/remove/:suuid/:puuid', (req, res, _next) => {
+		let suuid = req.params.suuid;
+		let puuid = req.params.puuid;
+		let mc = SERVERS[suuid];
+
+		mc.opRemove(puuid)
+			.then(() => res.send(buildServerResponse(true, 'Player removed from op')))
 			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
