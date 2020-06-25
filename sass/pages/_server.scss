@@ -2,7 +2,7 @@
   padding: 0 4rem 0 4rem;
 }
 
-table#server-properties-table, table#whitelist-table, table#op-table {
+table#server-properties-table, table#whitelist-table, table#op-table, table#ban-player-table, table#ban-ip-table {
   table-layout: fixed;
   border-collapse: collapse;
   width: 100%;
@@ -40,6 +40,6 @@ table#server-stats-table {
   padding: 1em;
 }
 
-.server-properties[type="text"] {
+.server-properties[type="text"], .player-management-tables input[type="text"] {
   width: 100%;
 }

@@ -242,5 +242,29 @@ function removeFromOp(puuid) {
 		});
 }
 
+// Ban player
+function banPlayer() {
+	let suuid = $('#server-title').attr('suuid');
+	let player = $('#ban-player-name').val();
+	let reason = Base64.encode($('#ban-player-reason').val());
+	fetch(`/servers/ban/add/${suuid}/${player}/${reason}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
+
+// Unban player
+function unbanPlayer(puuid) {
+	let suuid = $('#server-title').attr('suuid');
+	fetch(`/servers/ban/remove/${suuid}/${puuid}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
+
 // MUST be at end of script!
 __MAIN__();
