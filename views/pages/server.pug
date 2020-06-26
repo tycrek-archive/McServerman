@@ -113,6 +113,26 @@
 						td= val.created
 						td= val.source
 						td: button(onclick=`unbanPlayer('${val.uuid}')`) Unban
+		.col-6.player-management-tables
+			table#ban-ip-table
+				caption: code player bans
+				tr
+					th IP Address
+					th Reason
+					th Banned on
+					th Banned by
+					th Action
+				tr
+					td: input#ban-ip-address(type='text')
+					td(colspan=3): input#ban-ip-reason(type='text')
+					td: button(onclick='banIP()') Ban
+				each val, index in bans.ips
+					tr
+						td= val.ip
+						td= val.reason
+						td= val.created
+						td= val.source
+						td: button(onclick=`unbanIP('${val.ip}')`) Unban
 		br
 		br
 

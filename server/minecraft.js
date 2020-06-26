@@ -571,6 +571,49 @@ class Minecraft {
 		});
 	}
 
+	// Bans an IP
+	banIPAdd(ip, reason) {
+		log.info(`Banning IP "${ip}" from server ${this.suuid}`);
+		return new Promise((resolve, reject) => {
+			let banPath;
+			this.getConfig()
+				.then((config) => banPath = path.join(config.directory, 'banned-ips.json'))
+				.then(() => fs.readJson(banPath))
+				.then((bans) => {
+					let ban = {
+						ip: ip,
+						created: moment().format(BAN_TIMESTAMP_FORMAT),
+						source: '__McServerman__',
+						expires: 'forever',
+						reason: reason
+					};
+					bans.push(ban);
+					return bans;
+				})
+				.then((bans) => fs.writeJson(banPath, bans, { spaces: '\t' }))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
+	// Unbans an IP
+	banIPRemove(ip) {
+		log.info(`Unbanning IP "${ip} from server ${this.suuid}`);
+		return new Promise((resolve, reject) => {
+			let banPath;
+			this.getConfig()
+				.then((config) => banPath = path.join(config.directory, 'banned-ips.json'))
+				.then(() => fs.readJson(banPath))
+				.then((bans) => {
+					bans.forEach((mIp, index) => mIp.ip === ip && bans.splice(index, 1));
+					return bans;
+				})
+				.then((bans) => fs.writeJson(banPath, bans, { spaces: '\t' }))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
 	//#endregion
 
 	//#region other

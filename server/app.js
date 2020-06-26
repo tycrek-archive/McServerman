@@ -338,6 +338,29 @@ function setRoutes() {
 			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
+	// Bans an IP
+	app.get('/servers/ban-ip/add/:suuid/:ip/:reason', (req, res, _next) => {
+		let suuid = req.params.suuid;
+		let ip = req.params.ip;
+		let reason = Base64.decode(req.params.reason);
+		let mc = SERVERS[suuid];
+
+		mc.banIPAdd(ip, reason)
+			.then(() => res.send(buildServerResponse(true, 'IP banned')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
+	// Unbans an IP
+	app.get('/servers/ban-ip/remove/:suuid/:ip', (req, res, _next) => {
+		let suuid = req.params.suuid;
+		let ip = req.params.ip;
+		let mc = SERVERS[suuid];
+
+		mc.banIPRemove(ip)
+			.then(() => res.send(buildServerResponse(true, 'IP unbanned')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
 
 	//// HTTP Errors ////
 	// TODO: Maybe use actual pages instead of just generic text?

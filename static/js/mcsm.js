@@ -268,5 +268,29 @@ function unbanPlayer(puuid) {
 		});
 }
 
+// Ban IP
+function banIP() {
+	let suuid = $('#server-title').attr('suuid');
+	let ip = $('#ban-ip-address').val();
+	let reason = Base64.encode($('#ban-ip-reason').val());
+	fetch(`/servers/ban-ip/add/${suuid}/${ip}/${reason}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
+
+// Unban IP
+function unbanIP(ip) {
+	let suuid = $('#server-title').attr('suuid');
+	fetch(`/servers/ban-ip/remove/${suuid}/${ip}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
+
 // MUST be at end of script!
 __MAIN__();
