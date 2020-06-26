@@ -28,7 +28,7 @@
 .col-3.server-panels.action-button-panel
 	h2 Special actions
 	h3: button: strong Manage plugins
-	h3: button#player-button: strong Manage whitelist/ops
+	h3: button#player-button: strong Player management
 	h3: button(onclick=`deleteServer('${__server__.suuid}')`): strong Delete server
 
 .col-12.server-panels#server-properties-panel
@@ -93,6 +93,46 @@
 					tr
 						td= val.name
 						td: button(onclick=`removeFromOp('${val.uuid}')`) Remove
+		.col-6.player-management-tables
+			table#ban-player-table
+				caption: code player bans
+				tr
+					th Player
+					th Reason
+					th Banned on
+					th Banned by
+					th Action
+				tr
+					td: input#ban-player-name(type='text')
+					td(colspan=3): input#ban-player-reason(type='text')
+					td: button(onclick='banPlayer()') Ban
+				each val, index in bans.players
+					tr
+						td= val.name
+						td= val.reason
+						td= val.created
+						td= val.source
+						td: button(onclick=`unbanPlayer('${val.uuid}')`) Unban
+		.col-6.player-management-tables
+			table#ban-ip-table
+				caption: code player bans
+				tr
+					th IP Address
+					th Reason
+					th Banned on
+					th Banned by
+					th Action
+				tr
+					td: input#ban-ip-address(type='text')
+					td(colspan=3): input#ban-ip-reason(type='text')
+					td: button(onclick='banIP()') Ban
+				each val, index in bans.ips
+					tr
+						td= val.ip
+						td= val.reason
+						td= val.created
+						td= val.source
+						td: button(onclick=`unbanIP('${val.ip}')`) Unban
 		br
 		br
 
@@ -102,6 +142,7 @@ script.
 	queryServer();
 	var statusInterval = setInterval(queryServer, 5000);
 
+	// Animated scroll to player management
 	$("#player-button").click(() => {
 		$([document.documentElement, document.body]).animate({
 			scrollTop: $("#player-management").offset().top

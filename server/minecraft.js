@@ -132,8 +132,13 @@ const DOWNLOAD_LINKS = {
 // for opping / whitelisting players before they have joined.
 const PLAYER_UUID_LINK = 'https://playerdb.co/api/player/minecraft/';
 
+/// BAN_TIMESTAMP_FORMAT
+// Timestamp for formatting "created" in player/ip ban files
+const BAN_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH:mm:ss ZZ';
+
 //#endregion
 
+// TODO: Whitelist/op/ban players using RCON if server online
 class Minecraft {
 	constructor(suuid) {
 		this.suuid = suuid == null ? uuid() : suuid;
@@ -210,6 +215,12 @@ class Minecraft {
 				// Create an empty ops file
 				.then(() => fs.ensureFile(path.join(destPath, 'ops.json')))
 				.then(() => fs.writeJson(path.join(destPath, 'ops.json'), []))
+
+				// Creates empty ban files (player/ip)
+				.then(() => fs.ensureFile(path.join(destPath, 'banned-players.json')))
+				.then(() => fs.writeJson(path.join(destPath, 'banned-players.json'), []))
+				.then(() => fs.ensureFile(path.join(destPath, 'banned-ips.json')))
+				.then(() => fs.writeJson(path.join(destPath, 'banned-ips.json'), []))
 
 				// Respond to the client
 				.then(() => resolve())
@@ -325,6 +336,17 @@ class Minecraft {
 			this.getConfig()
 				.then((config) => fs.readJson(path.join(config.directory, 'ops.json')))
 				.then((ops) => resolve(ops))
+				.catch((err) => (log.warn(err), resolve([])));
+		});
+	}
+
+	// Read bans
+	readBans() {
+		return new Promise((resolve, _reject) => {
+			this.getConfig()
+				.then((config) => Promise.all([fs.readJson(path.join(config.directory, 'banned-players.json')), fs.readJson(path.join(config.directory, 'banned-ips.json'))]))
+				.then((bans) => ({ players: bans[0], ips: bans[1] }))
+				.then((banJson) => resolve(banJson))
 				.catch((err) => (log.warn(err), resolve([])));
 		});
 	}
@@ -500,6 +522,93 @@ class Minecraft {
 					return ops;
 				})
 				.then((ops) => fs.writeJson(opPath, ops, { spaces: '\t' }))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
+	// Bans a player
+	banPlayerAdd(player, reason) {
+		log.info(`Banning player "${player}" from server ${this.suuid}`);
+		return new Promise((resolve, reject) => {
+			let banPath;
+			this.getConfig()
+				.then((config) => banPath = path.join(config.directory, 'banned-players.json'))
+				.then(() => Promise.all([fs.readJson(banPath), getPlayerUuid(player)]))
+				.then((data) => {
+					let ban = {
+						uuid: data[1],
+						name: player,
+						created: moment().format(BAN_TIMESTAMP_FORMAT),
+						source: '__McServerman__',
+						expires: 'forever',
+						reason: reason
+					};
+					data[0].push(ban);
+					return data[0];
+				})
+				.then((bans) => fs.writeJson(banPath, bans, { spaces: '\t' }))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
+	// Unbans a player
+	banPlayerRemove(puuid) {
+		log.info(`Unbanning player "${puuid} from server ${this.suuid}`);
+		return new Promise((resolve, reject) => {
+			let banPath;
+			this.getConfig()
+				.then((config) => banPath = path.join(config.directory, 'banned-players.json'))
+				.then(() => fs.readJson(banPath))
+				.then((bans) => {
+					bans.forEach((player, index) => player.uuid === puuid && bans.splice(index, 1));
+					return bans;
+				})
+				.then((bans) => fs.writeJson(banPath, bans, { spaces: '\t' }))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
+	// Bans an IP
+	banIPAdd(ip, reason) {
+		log.info(`Banning IP "${ip}" from server ${this.suuid}`);
+		return new Promise((resolve, reject) => {
+			let banPath;
+			this.getConfig()
+				.then((config) => banPath = path.join(config.directory, 'banned-ips.json'))
+				.then(() => fs.readJson(banPath))
+				.then((bans) => {
+					let ban = {
+						ip: ip,
+						created: moment().format(BAN_TIMESTAMP_FORMAT),
+						source: '__McServerman__',
+						expires: 'forever',
+						reason: reason
+					};
+					bans.push(ban);
+					return bans;
+				})
+				.then((bans) => fs.writeJson(banPath, bans, { spaces: '\t' }))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
+	// Unbans an IP
+	banIPRemove(ip) {
+		log.info(`Unbanning IP "${ip} from server ${this.suuid}`);
+		return new Promise((resolve, reject) => {
+			let banPath;
+			this.getConfig()
+				.then((config) => banPath = path.join(config.directory, 'banned-ips.json'))
+				.then(() => fs.readJson(banPath))
+				.then((bans) => {
+					bans.forEach((mIp, index) => mIp.ip === ip && bans.splice(index, 1));
+					return bans;
+				})
+				.then((bans) => fs.writeJson(banPath, bans, { spaces: '\t' }))
 				.then(() => resolve())
 				.catch((err) => reject(err));
 		});

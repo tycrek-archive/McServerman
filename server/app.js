@@ -142,10 +142,11 @@ function setRoutes() {
 	app.get('/pages/server/:suuid', (req, res, next) => {
 		let mc = SERVERS[req.params.suuid];
 
-		Promise.all([mc.readProperties(), mc.readWhitelist(), mc.readOps()])
+		Promise.all([mc.readProperties(), mc.readWhitelist(), mc.readOps(), mc.readBans()])
 			.then((data) => {
 				data[0].whitelist = data[1];
 				data[0].ops = data[2];
+				data[0].bans = data[3];
 				return data[0];
 			})
 			.then((config) => res.render('server', config))
@@ -314,6 +315,52 @@ function setRoutes() {
 			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
+	// Bans a player
+	app.get('/servers/ban/add/:suuid/:player/:reason', (req, res, _next) => {
+		let suuid = req.params.suuid;
+		let player = req.params.player;
+		let reason = Base64.decode(req.params.reason);
+		let mc = SERVERS[suuid];
+
+		mc.banPlayerAdd(player, reason)
+			.then(() => res.send(buildServerResponse(true, 'Player banned')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
+	// Unbans a player
+	app.get('/servers/ban/remove/:suuid/:puuid', (req, res, _next) => {
+		let suuid = req.params.suuid;
+		let puuid = req.params.puuid;
+		let mc = SERVERS[suuid];
+
+		mc.banPlayerRemove(puuid)
+			.then(() => res.send(buildServerResponse(true, 'Player unbanned')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
+	// Bans an IP
+	app.get('/servers/ban-ip/add/:suuid/:ip/:reason', (req, res, _next) => {
+		let suuid = req.params.suuid;
+		let ip = req.params.ip;
+		let reason = Base64.decode(req.params.reason);
+		let mc = SERVERS[suuid];
+
+		mc.banIPAdd(ip, reason)
+			.then(() => res.send(buildServerResponse(true, 'IP banned')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
+	// Unbans an IP
+	app.get('/servers/ban-ip/remove/:suuid/:ip', (req, res, _next) => {
+		let suuid = req.params.suuid;
+		let ip = req.params.ip;
+		let mc = SERVERS[suuid];
+
+		mc.banIPRemove(ip)
+			.then(() => res.send(buildServerResponse(true, 'IP unbanned')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
 
 	//// HTTP Errors ////
 	// TODO: Maybe use actual pages instead of just generic text?
@@ -359,6 +406,148 @@ function buildServerResponse(s, m, d = {}) {
 	!s && m !== 'Failed all 1 attempts' && log.warn(m);
 	if (typeof (m) === typeof (Object)) m = Object(m).toString();
 	return { success: s, message: m, data: d }; // TODO: Fix the got damn errors!!!!!!!
+}
+
+/**
+*
+*  Base64 encode / decode
+*  http://www.webtoolkit.info/
+*
+**/
+var Base64 = {
+
+	// private property
+	_keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+	// public method for encoding
+	encode: function (input) {
+		var output = "";
+		var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+		var i = 0;
+
+		input = Base64._utf8_encode(input);
+
+		while (i < input.length) {
+
+			chr1 = input.charCodeAt(i++);
+			chr2 = input.charCodeAt(i++);
+			chr3 = input.charCodeAt(i++);
+
+			enc1 = chr1 >> 2;
+			enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+			enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+			enc4 = chr3 & 63;
+
+			if (isNaN(chr2)) {
+				enc3 = enc4 = 64;
+			} else if (isNaN(chr3)) {
+				enc4 = 64;
+			}
+
+			output = output +
+				this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) +
+				this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
+
+		}
+
+		return output;
+	},
+
+	// public method for decoding
+	decode: function (input) {
+		var output = "";
+		var chr1, chr2, chr3;
+		var enc1, enc2, enc3, enc4;
+		var i = 0;
+
+		input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+		while (i < input.length) {
+
+			enc1 = this._keyStr.indexOf(input.charAt(i++));
+			enc2 = this._keyStr.indexOf(input.charAt(i++));
+			enc3 = this._keyStr.indexOf(input.charAt(i++));
+			enc4 = this._keyStr.indexOf(input.charAt(i++));
+
+			chr1 = (enc1 << 2) | (enc2 >> 4);
+			chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+			chr3 = ((enc3 & 3) << 6) | enc4;
+
+			output = output + String.fromCharCode(chr1);
+
+			if (enc3 != 64) {
+				output = output + String.fromCharCode(chr2);
+			}
+			if (enc4 != 64) {
+				output = output + String.fromCharCode(chr3);
+			}
+
+		}
+
+		output = Base64._utf8_decode(output);
+
+		return output;
+
+	},
+
+	// private method for UTF-8 encoding
+	_utf8_encode: function (string) {
+		string = string.replace(/\r\n/g, "\n");
+		var utftext = "";
+
+		for (var n = 0; n < string.length; n++) {
+
+			var c = string.charCodeAt(n);
+
+			if (c < 128) {
+				utftext += String.fromCharCode(c);
+			}
+			else if ((c > 127) && (c < 2048)) {
+				utftext += String.fromCharCode((c >> 6) | 192);
+				utftext += String.fromCharCode((c & 63) | 128);
+			}
+			else {
+				utftext += String.fromCharCode((c >> 12) | 224);
+				utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+				utftext += String.fromCharCode((c & 63) | 128);
+			}
+
+		}
+
+		return utftext;
+	},
+
+	// private method for UTF-8 decoding
+	_utf8_decode: function (utftext) {
+		var string = "";
+		var i = 0;
+		var c = c1 = c2 = 0;
+
+		while (i < utftext.length) {
+
+			c = utftext.charCodeAt(i);
+
+			if (c < 128) {
+				string += String.fromCharCode(c);
+				i++;
+			}
+			else if ((c > 191) && (c < 224)) {
+				c2 = utftext.charCodeAt(i + 1);
+				string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+				i += 2;
+			}
+			else {
+				c2 = utftext.charCodeAt(i + 1);
+				c3 = utftext.charCodeAt(i + 2);
+				string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+				i += 3;
+			}
+
+		}
+
+		return string;
+	}
+
 }
 
 

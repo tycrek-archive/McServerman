@@ -49,7 +49,7 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 
 - :heavy_check_mark: Whitelist
 - :heavy_check_mark: "Op" and "Deop"
-- :x: Bans ___(Required for 0.1.0a release)___
+- :heavy_check_mark: Bans (player and IP)
 - :heavy_check_mark: Run the above functions before players have ever joined using player UUID's
 - :x: List all players who have previously joined and run the above functions on them
 

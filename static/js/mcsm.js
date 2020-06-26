@@ -190,8 +190,10 @@ function queryServer() {
 		.then((response) => response.json())
 		.then((json) => {
 			if (!json.success) throw Error('Failed');
+			let playerCount = json.data.players.length;
+			if (playerCount > 1) playerCount -= 1;
 			$('#server-status').html('Online'); // TODO: play with states from https://github.com/sonicsnes/node-gamedig
-			$('#server-players').html(`${json.data.players.length - 1}/${json.data.maxplayers}`);
+			$('#server-players').html(`${playerCount}/${json.data.maxplayers}`);
 		})
 		.catch((err) => $('#server-status').html('Offline'));
 }
@@ -235,6 +237,54 @@ function addToOp() {
 function removeFromOp(puuid) {
 	let suuid = $('#server-title').attr('suuid');
 	fetch(`/servers/op/remove/${suuid}/${puuid}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
+
+// Ban player
+function banPlayer() {
+	let suuid = $('#server-title').attr('suuid');
+	let player = $('#ban-player-name').val();
+	let reason = Base64.encode($('#ban-player-reason').val());
+	fetch(`/servers/ban/add/${suuid}/${player}/${reason}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
+
+// Unban player
+function unbanPlayer(puuid) {
+	let suuid = $('#server-title').attr('suuid');
+	fetch(`/servers/ban/remove/${suuid}/${puuid}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
+
+// Ban IP
+function banIP() {
+	let suuid = $('#server-title').attr('suuid');
+	let ip = $('#ban-ip-address').val();
+	let reason = Base64.encode($('#ban-ip-reason').val());
+	fetch(`/servers/ban-ip/add/${suuid}/${ip}/${reason}`)
+		.then((response) => response.json())
+		.then((json) => {
+			if (!json.success) alert(json.message);
+			else LOAD_PAGE(`/pages/server/${suuid}`, true);
+		});
+}
+
+// Unban IP
+function unbanIP(ip) {
+	let suuid = $('#server-title').attr('suuid');
+	fetch(`/servers/ban-ip/remove/${suuid}/${ip}`)
 		.then((response) => response.json())
 		.then((json) => {
 			if (!json.success) alert(json.message);
