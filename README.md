@@ -39,10 +39,11 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 #### World management
 
 - :x: Upload existing worlds ___(Required for 0.1.0a release)___
-- :heavy_check_mark: Download active world
-- :x: Backup/Restore
-- :x: Regenerate world
+- :heavy_check_mark: Download active world (currently downloads entire server)
+- :x: Backup/Restore (not the same as download/upload: these are server-side restore points)
+- :x: Regenerate world (i.e. erase current world and start a new one)
 - :x: World switching (example: switching between a parkour map and a survival map)
+- :x: Create new worlds with option to set custom seeds
 - :x: Upgrade for new versions (example: 1.12 -> 1.13). See [here](https://www.beastnode.com/portal/index.php?rp=/knowledgebase/191/Optional-Server-Startup-Parameters.html) and [here](https://www.minecraftforum.net/forums/support/java-edition-support/2914616-1-13-faqs-read-before-posting) for notes on the `--forceUpgrade` flag.
 
 #### Player operations
@@ -127,7 +128,7 @@ If all goes as planned, you should see: `Server hosted on 0.0.0.0:7767`
 6. You can edit the `server.properties` file from the server dashboard. Make sure you click **Save changes** once you have made your edits.
     - **Note**: In order for McServerman to function optimally, it will force enable `enable-query` and `enable-rcon`. Make sure you set `rcon.password`, otherwise you may not be able to safely stop the server and you could lose data! If you do not set `rcon.password`, McServerman will create one for you.
 7. You can also add/remove players from the server whitelist in the table below the properties table. Make sure to also enable the whitelist in `server.properties`. To use the updated whitelist, restart your Minecraft server.
-8. To stop McServerman, go to the console or terminal where you ran `node app.js` and press `CTRL-C` on your keyboard. Any active Minecraft servers will stay active, so this is usually safe.
+8. To stop McServerman, go to the console or terminal where you ran `node app.js` and press `CTRL+C` on your keyboard. Any active Minecraft servers will stay active, so this is usually safe.
 
 ---
 
