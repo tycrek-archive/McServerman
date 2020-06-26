@@ -665,6 +665,38 @@ class Minecraft {
 		});
 	}
 
+	// Unzips an uploaded file
+	uploadWorld(filename) {
+		log.info(`Unzipping uploaded world "${filename}" to server ${this.suuid}`);
+		return new Promise((resolve, reject) => {
+			let zip;
+			let server;
+			let worldName;
+
+			this.getConfig()
+				.then((config) => server = config)
+				.then(() => {
+					zip = new AdmZip(path.join(server.directory, filename));
+					zip.extractAllTo(path.join(server.directory, filename.replaceAll('.zip', '')));
+					return filename.replaceAll('.zip', '');
+				})
+				.then((mWorldName) => worldName = mWorldName)
+				.then(() => this.readProperties())
+				.then((p) => {
+					p.properties['level-name'] = worldName;
+
+					let pText;
+					Object.keys(p.properties).forEach((key, value) => {
+						pText += `${key}=${value}\n`;
+					});
+					return pText;
+				})
+				.then((properties) => this.writeProperties(properties))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
 	//#endregion
 }
 

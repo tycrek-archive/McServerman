@@ -27,9 +27,13 @@ const Sass = require('node-sass');
 
 // Express "setup"
 const express = require('express');
+const fileUpload = require('express-fileupload');
 const app = express();
+app.use(fileUpload());
 
 const Minecraft = require('./minecraft');
+const e = require('express');
+const { dir } = require('console');
 
 //#endregion
 
@@ -164,6 +168,22 @@ function setRoutes() {
 			err == null && log.warn(err);
 			if (res.headersSent) fs.remove(TEMP_DOWNLOADS[req.params.did]);
 		});
+	});
+
+	/// Upload
+	app.post('/servers/upload/:suuid', (req, res, next) => {
+		let mc = SERVERS[req.params.suuid];
+		if (!req.files || Object.keys(req.files).length !== 1)
+			return res.send(buildServerResponse(false, 'Must upload 1 .zip file!'));
+
+		let file = req.files.world;
+
+		mc.getConfig()
+			.then((config) => config.directory)
+			.then((directory) => file.mv(path.join(directory, file.name)))
+			.then(() => mc.uploadWorld(file.name))
+			.then(() => res.send(buildServerResponse(true, 'Uploaded world!')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
 
