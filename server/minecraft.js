@@ -119,6 +119,7 @@ const JAVA_INSTALLATIONS = {
 const DOWNLOAD_LINKS = {
 	vanilla: 'https://mcversions.net/mcversions.json',
 	paper: {
+		1.16: 'https://papermc.io/ci/job/Paper-1.16/lastSuccessfulBuild/artifact/paperclip.jar',
 		1.15: 'https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar',
 		1.14: 'https://papermc.io/ci/job/Paper-1.14/lastSuccessfulBuild/artifact/paperclip.jar',
 		1.13: 'https://papermc.io/ci/job/Paper-1.13/lastSuccessfulBuild/artifact/paperclip.jar',
