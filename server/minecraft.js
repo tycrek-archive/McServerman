@@ -911,7 +911,7 @@ function buildExperimentalFlags(version) {
 	let dedicatedRam = Math.round(RAM.free / MEMORY_SPLIT);
 	// TODO: Improve ram selection to use system but fallback to free if unable to use system
 	// TODO: Allow user to pick deditated wam
-	// TODO: Potentially change variable name to deditatedWam
+	// ? Potentially change variable name to deditatedWam
 
 	// Set up inital flags
 	let ramFlag = `-Xms${dedicatedRam}G -Xmx${dedicatedRam}G`;
