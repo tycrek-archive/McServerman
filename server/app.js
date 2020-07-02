@@ -169,7 +169,7 @@ function setRoutes() {
 		});
 	});
 
-	/// Upload
+	/// Upload a world file
 	app.post('/servers/upload/:suuid', (req, res, next) => {
 		let mc = SERVERS[req.params.suuid];
 		if (!req.files || Object.keys(req.files).length !== 1)
