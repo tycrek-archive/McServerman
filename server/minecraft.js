@@ -665,6 +665,44 @@ class Minecraft {
 		});
 	}
 
+	// Unzips an uploaded file
+	uploadWorld(filename) {
+		log.info(`Unzipping uploaded world "${filename}" to server ${this.suuid}`);
+		return new Promise((resolve, reject) => {
+			let zip; // AdmZip object for unzipping the uploaded zip
+			let server; // Server config
+			let worldName; // Name of the world to set in server properties
+
+			this.getConfig()
+				.then((config) => server = config)
+				.then(() => fs.exists(path.join(server.directory, filename.replace('.zip', ''))))
+				.then((exists) => {
+					if (exists) throw Error('Path already exists!');
+					else return;
+				})
+				.then(() => {
+					zip = new AdmZip(path.join(server.directory, filename));
+					zip.extractAllTo(path.join(server.directory));
+					return filename.replace('.zip', '');
+				})
+				.then((mWorldName) => worldName = mWorldName)
+				.then(() => this.readProperties())
+				.then((p) => {
+					p.properties['level-name'] = worldName;
+
+					// Convert properties json to minecraft server.properties format
+					let pText;
+					Object.keys(p.properties).forEach((key, _index) => {
+						pText += `${key}=${p.properties[key]}\n`;
+					});
+					return pText;
+				})
+				.then((properties) => this.writeProperties(properties))
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
 	//#endregion
 }
 
@@ -879,7 +917,7 @@ function buildExperimentalFlags(version) {
 	let dedicatedRam = Math.round(RAM.free / MEMORY_SPLIT);
 	// TODO: Improve ram selection to use system but fallback to free if unable to use system
 	// TODO: Allow user to pick deditated wam
-	// TODO: Potentially change variable name to deditatedWam
+	// ? Potentially change variable name to deditatedWam
 
 	// Set up inital flags
 	let ramFlag = `-Xms${dedicatedRam}G -Xmx${dedicatedRam}G`;

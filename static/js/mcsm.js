@@ -161,7 +161,7 @@ function deleteServer(suuid) {
 				if (!json.success) throw Error(json.message.message);
 				else LOAD_PAGE(PAGES.home);
 			})
-			.catch((err) => alert(err))
+			.catch((err) => alert(err));
 	}
 }
 
@@ -177,8 +177,39 @@ function downloadWorld(suuid) {
 					win.focus();
 				}
 			})
-			.catch((err) => alert(err))
+			.catch((err) => alert(err));
 	}
+}
+
+// Upload existing world file
+function uploadWorld() {
+	let suuid = $('#server-title').attr('suuid');
+
+	alert('To upload an existing world, create a .zip of the world folder from your .minecraft/saves folder. Then, upload that zip in the next dialog. Once uploaded, McServerman will automatically update server.properties to match the world name.');
+
+	// "hidden" file picker <input>
+	let input = $(document.createElement('input'));
+	input.attr('type', 'file');
+	input.attr('id', 'world');
+	input.attr('accept', 'application/zip');
+	input.on('change', (e) => {
+		// Build the object that contains our raw data
+		let formData = new FormData();
+		formData.append('world', e.target.files[0]);
+
+		fetch(`/servers/upload/${suuid}`, {
+			method: 'POST',
+			body: formData
+		})
+			.then((response) => response.json())
+			.then((json) => {
+				if (!json.success) throw Error(json.message.message);
+				else LOAD_PAGE(`/pages/server/${suuid}`, true);
+			})
+			.catch((err) => alert(err));
+		return false;
+	});
+	input.trigger('click');
 }
 
 // Ask McServerman server to query the Minecraft server so we can see if it is actually online

@@ -5,8 +5,7 @@
 const path = require('path');
 
 /// fs-extra
-// A better fs module. Includes more functions and adds Promises to existing
-// fs functions
+// A better fs module. Includes more functions and adds Promises to existing fs functions
 const fs = require('fs-extra');
 
 /// moment
@@ -27,6 +26,7 @@ const Sass = require('node-sass');
 
 // Express "setup"
 const express = require('express');
+const fileUpload = require('express-fileupload');
 const app = express();
 
 const Minecraft = require('./minecraft');
@@ -62,7 +62,7 @@ const PATHS = {
 	properties: path.join(__dirname, '..', 'config/properties.json')
 };
 
-//// Global variables //// (Keep this section as small as possible)
+/// Global variables /// (Keep this section as small as possible)
 
 /// SERVERS
 // Stores the subprocess object created from "spawning" a Jar file.
@@ -79,6 +79,9 @@ var TEMP_DOWNLOADS = {};
 // Static paths (for stuff like JavaScript and Fonts)
 app.use(express.static(PATHS.static));
 app.use('/fonts', express.static(PATHS.fonts));
+
+// For uploading
+app.use(fileUpload());
 
 // Set the rendering engine.
 // Tells Express to render using Pug.js (requires pug package from npm)
@@ -97,9 +100,9 @@ refreshActiveServers()
 	.then(() => app.listen(PORT, HOST, () => (log.info(`Server hosted on ${HOST}:${PORT}`), log.info(`Click this link to open in browser: http://127.0.0.1:7767`))));
 
 
-//// Routes ////
+/// Routes ///
 function setRoutes() {
-	//// Standard routes ////
+	/// Standard routes ///
 	// Routes required for the client to have basic browser functions; i.e. not
 	// app specific
 
@@ -114,7 +117,7 @@ function setRoutes() {
 	app.get('/css', (_req, res, next) => renderSass(res, next));
 
 
-	//// Page routes ////
+	/// Page routes ///
 	// Page routes (/page/foobar) are requested when LOAD_PAGE() is called in
 	// mcsm.js. These routes MUST return HTML data, typically from calling
 	// res.render(). With that said, they ARE permitted to forward their
@@ -154,7 +157,7 @@ function setRoutes() {
 	});
 
 
-	//// Other stuff ////
+	/// Other stuff ///
 
 	/// Download
 	// Downloads whatever is linked to did ("download ID")
@@ -166,8 +169,24 @@ function setRoutes() {
 		});
 	});
 
+	/// Upload a world file
+	app.post('/servers/upload/:suuid', (req, res, next) => {
+		let mc = SERVERS[req.params.suuid];
+		if (!req.files || Object.keys(req.files).length !== 1)
+			return res.send(buildServerResponse(false, 'Must upload 1 .zip file!'));
 
-	//// Server management routes ////
+		let file = req.files.world;
+
+		mc.getConfig()
+			.then((config) => config.directory)
+			.then((directory) => file.mv(path.join(directory, file.name)))
+			.then(() => mc.uploadWorld(file.name))
+			.then(() => res.send(buildServerResponse(true, 'Uploaded world!')))
+			.catch((err) => res.send(buildServerResponse(false, err)));
+	});
+
+
+	/// Server management routes ///
 	// Typically these will all call res.send(buildServerResponse()) except in specific cases
 
 	/// New Server
@@ -362,8 +381,8 @@ function setRoutes() {
 	});
 
 
-	//// HTTP Errors ////
-	// TODO: Maybe use actual pages instead of just generic text?
+	/// HTTP Errors ///
+	//? Maybe use actual pages instead of just generic text?
 
 	/// HTTP 404
 	app.use((_req, res) => res.status(404).send('404 NOT FOUND'));
@@ -372,7 +391,7 @@ function setRoutes() {
 	app.use((err, _req, res, _next) => (log.error(err.stack), res.status(500).send('500 SERVER ERROR')));
 }
 
-//// Functions ////
+/// Functions ///
 
 // Refresh any active Minecraft servers when McSm is launched. This helps
 // because if McSm crashes, Minecraft servers stay online. SERVERS won't

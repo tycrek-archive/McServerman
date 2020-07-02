@@ -38,7 +38,7 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 
 #### World management
 
-- :x: Upload existing worlds ___(Required for 0.1.0a release)___
+- :heavy_check_mark: Upload existing worlds
 - :heavy_check_mark: Download active world (currently downloads entire server)
 - :x: Backup/Restore (not the same as download/upload: these are server-side restore points)
 - :x: Regenerate world (i.e. erase current world and start a new one)
