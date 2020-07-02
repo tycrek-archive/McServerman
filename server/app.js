@@ -28,7 +28,6 @@ const Sass = require('node-sass');
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const app = express();
-app.use(fileUpload());
 
 const Minecraft = require('./minecraft');
 
@@ -80,6 +79,9 @@ var TEMP_DOWNLOADS = {};
 // Static paths (for stuff like JavaScript and Fonts)
 app.use(express.static(PATHS.static));
 app.use('/fonts', express.static(PATHS.fonts));
+
+// For uploading
+app.use(fileUpload());
 
 // Set the rendering engine.
 // Tells Express to render using Pug.js (requires pug package from npm)
