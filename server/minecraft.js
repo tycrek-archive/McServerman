@@ -669,25 +669,31 @@ class Minecraft {
 	uploadWorld(filename) {
 		log.info(`Unzipping uploaded world "${filename}" to server ${this.suuid}`);
 		return new Promise((resolve, reject) => {
-			let zip;
-			let server;
-			let worldName;
+			let zip; // AdmZip object for unzipping the uploaded zip
+			let server; // Server config
+			let worldName; // Name of the world to set in server properties
 
 			this.getConfig()
 				.then((config) => server = config)
+				.then(() => fs.exists(path.join(server.directory, filename.replace('.zip', ''))))
+				.then((exists) => {
+					if (exists) throw Error('Path already exists!');
+					else return;
+				})
 				.then(() => {
 					zip = new AdmZip(path.join(server.directory, filename));
-					zip.extractAllTo(path.join(server.directory, filename.replaceAll('.zip', '')));
-					return filename.replaceAll('.zip', '');
+					zip.extractAllTo(path.join(server.directory));
+					return filename.replace('.zip', '');
 				})
 				.then((mWorldName) => worldName = mWorldName)
 				.then(() => this.readProperties())
 				.then((p) => {
 					p.properties['level-name'] = worldName;
 
+					// Convert properties json to minecraft server.properties format
 					let pText;
-					Object.keys(p.properties).forEach((key, value) => {
-						pText += `${key}=${value}\n`;
+					Object.keys(p.properties).forEach((key, _index) => {
+						pText += `${key}=${p.properties[key]}\n`;
 					});
 					return pText;
 				})

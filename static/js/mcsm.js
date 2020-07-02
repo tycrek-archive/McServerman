@@ -183,6 +183,8 @@ function downloadWorld(suuid) {
 
 // Upload existing world file
 function uploadWorld() {
+	let suuid = $('#server-title').attr('suuid');
+
 	alert('To upload an existing world, create a .zip of the world folder from your .minecraft/saves folder. Then, upload that zip in the next dialog. Once uploaded, McServerman will automatically update server.properties to match the world name.');
 
 	// "hidden" file picker <input>
@@ -190,10 +192,14 @@ function uploadWorld() {
 	input.attr('type', 'file');
 	input.attr('id', 'world');
 	input.attr('accept', 'application/zip');
-	input.on('change', () => {
-		fetch(`/servers/upload/:suuid`, {
+	input.on('change', (e) => {
+		// Build the object that contains our raw data
+		let formData = new FormData();
+		formData.append('world', e.target.files[0]);
+
+		fetch(`/servers/upload/${suuid}`, {
 			method: 'POST',
-			body: input.files[0]
+			body: formData
 		})
 			.then((response) => response.json())
 			.then((json) => {
@@ -201,9 +207,9 @@ function uploadWorld() {
 				else LOAD_PAGE(`/pages/server/${suuid}`, true);
 			})
 			.catch((err) => alert(err));
-		input.trigger('click');
 		return false;
 	});
+	input.trigger('click');
 }
 
 // Ask McServerman server to query the Minecraft server so we can see if it is actually online
