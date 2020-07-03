@@ -114,16 +114,10 @@ const JAVA_INSTALLATIONS = {
 /// DOWNLOAD_LINKS
 // Collection of links for where Jar files can be downloaded from.
 // TODO: Add support for Bedrock edition, if it ever leaves Alpha stages.
-//       Current Bedrock link is also not Direct Download.
+// Current Bedrock link is also not Direct Download.
 const DOWNLOAD_LINKS = {
 	vanilla: 'https://mcversions.net/mcversions.json',
-	paper: {
-		1.16: 'https://papermc.io/ci/job/Paper-1.16/lastSuccessfulBuild/artifact/paperclip.jar',
-		1.15: 'https://papermc.io/ci/job/Paper-1.15/lastSuccessfulBuild/artifact/paperclip.jar',
-		1.14: 'https://papermc.io/ci/job/Paper-1.14/lastSuccessfulBuild/artifact/paperclip.jar',
-		1.13: 'https://papermc.io/ci/job/Paper-1.13/lastSuccessfulBuild/artifact/paperclip.jar',
-		1.12: 'https://papermc.io/ci/job/Paper/lastSuccessfulBuild/artifact/paperclip.jar'
-	},
+	paper: 'https://papermc.io/api/v1/paper/~~v~~/latest/download',
 	bedrock: 'https://www.minecraft.net/en-us/download/server/bedrock'
 };
 
@@ -185,7 +179,7 @@ class Minecraft {
 				.then(() => fs.ensureDir(destPath))
 
 				// PaperMC has direct download links; Vanilla does not, so we need an extra step to get the DDL link.
-				.then(() => type === 'vanilla' ? getVanillaUrl(version) : DOWNLOAD_LINKS.paper[version])
+				.then(() => type === 'vanilla' ? getVanillaUrl(version) : DOWNLOAD_LINKS.paper.replace('~~v~~', version))
 				.then((url) => downloadJar(url, dest))
 
 				// Run the Jar for the first time, ommiting the Wait flag because we want to wait for it to generate some files.
