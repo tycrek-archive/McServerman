@@ -327,6 +327,11 @@ class Minecraft {
 	writeProperties(properties) {
 		log.info(`Writing server.properties for ${this.suuid}`);
 		return new Promise((resolve, reject) => {
+			// Some versions don't set rcon properties by default
+			if (!properties.includes('rcon.password')) properties = properties.concat('\nrcon.password=');
+			if (!properties.includes('rcon.port')) properties = properties.concat('\nrcon.port=25575');
+
+
 			// Force enable query and rcon
 			properties = properties.replace('enable-query=false', 'enable-query=true');
 			properties = properties.replace('enable-rcon=false', 'enable-rcon=true');
@@ -408,8 +413,20 @@ class Minecraft {
 	start() {
 		log.info(`Starting server ${this.suuid}`);
 		return new Promise((resolve, reject) => {
+			let server;
 			this.getConfig()
-				.then((config) => runJar(config.directory, config.jarFile, false))
+				.then((config) => server = config)
+
+				// Read/write server.properties to ensure query and RCON are enabled by default
+				.then(() => fs.readdir(server.directory))
+				.then((files) => {
+					if (!files.includes('server.properties')) throw Error('Missing server.properties file!');
+					else return fs.readFile(path.join(server.directory, 'server.properties'));
+				})
+				.then((bytes) => bytes.toString())
+				.then((properties) => this.writeProperties(properties))
+
+				.then(() => runJar(server.directory, server.jarFile, false))
 				.then(() => resolve())
 				.catch((err) => reject(err));
 		});
@@ -420,7 +437,11 @@ class Minecraft {
 		log.info(`Stopping server ${this.suuid}`);
 		return new Promise((resolve, reject) => {
 			this.readProperties()
-				.then((p) => ({ host: p.properties['server-ip'], port: p.properties['rcon.port'], password: p.properties['rcon.password'] }))
+				.then((p) => ({
+					host: p.properties['server-ip'],
+					port: p.properties['rcon.port'],
+					password: p.properties['rcon.password']
+				}))
 				.then((conn) => sendRconCommand(conn.host, conn.port, conn.password, 'stop'))
 				.then((response) => log.info(`RCON reply from server ${this.suuid}: ${response}`))
 				.then(() => resolve())
