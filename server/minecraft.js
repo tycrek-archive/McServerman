@@ -113,7 +113,6 @@ const JAVA_INSTALLATIONS = {
 
 /// DOWNLOAD_LINKS
 // Collection of links for where Jar files can be downloaded from.
-// TODO: Add 1.16 link to PaperMC once 1.16 servers are available
 // TODO: Add support for Bedrock edition, if it ever leaves Alpha stages.
 //       Current Bedrock link is also not Direct Download.
 const DOWNLOAD_LINKS = {
