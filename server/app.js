@@ -161,7 +161,6 @@ function setRoutes() {
 
 	/// Download
 	// Downloads whatever is linked to did ("download ID")
-	// TODO: Clear downloads folder on startup
 	app.get('/download/:did', (req, res, _next) => {
 		res.download(TEMP_DOWNLOADS[req.params.did], (err) => {
 			err == null && log.warn(err);
