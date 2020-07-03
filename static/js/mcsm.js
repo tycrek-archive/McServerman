@@ -77,17 +77,62 @@ function newServer() {
 		.catch((err) => alert(`Error: ${err}`));
 }
 
+// Tells McServerman server to import an existing Minecraft server!
+function importServer() {
+	let type = $('input[name=iserver_type]:checked').val();
+	let version = $('#iserver_version').val();
+	let name = $('#iserver_name').val().replace(/[^a-zA-Z0-9\.\-\_]/g, '');
+	let jarpath = $('#iserver_jar').val().replaceAll('\\', '/').split('/');
+
+	let jar = jarpath.splice(jarpath.length - 1)[0];
+	let directory = jarpath.join('/');
+	console.log(jar);
+	console.log(directory);
+
+	// Disable the inputs/buttons so the user does not try to edit stuff during creation
+	// TODO: Give these an identical class to disable them all at once
+	$('#import-server-submit').prop('disabled', true);
+	$('input[name="iserver_type"').prop('disabled', true);
+	$('#iserver_version').prop('disabled', true);
+	$('#iserver_name').prop('disabled', true);
+	$('#iserver_jar').prop('disabled', true);
+
+	// Change the value of the "Import server" button for Fun! Funky! Wild! Visual Effects! (TM)
+	$('#import-server-submit').val('Please wait');
+
+	// Send the information to McSm
+	fetch(`/servers/import/${type}/${version}/${name}/${Base64.encode(directory)}/${Base64.encode(jar)}`)
+		.then((response) => response.json())
+		.then((json) => {
+
+			// Re-enable the buttons
+			$('#import-server-submit').prop('disabled', false);
+			$('input[name="iserver_type"').prop('disabled', false);
+			$('#iserver_version').prop('disabled', false);
+			$('#iserver_name').prop('disabled', false);
+			$('#iserver_jar').prop('disabled', false);
+
+			// Reset the button value
+			$('#import-server-submit').val('Import server');
+
+			// Load the homepage if it worked, otherwise tell the user.
+			if (json.success) LOAD_PAGE(PAGES.home);
+			else alert(`Failed, please try again!${json.message ? `\n\n${json.message}` : ''}`);
+		})
+		.catch((err) => alert(`Error: ${err}`));
+}
+
 // Swaps the version dropdown list depending on which server type is specified
 function setupRadioButtonVersionSwap() {
 	$('input#vanilla').on('change', () => {
 		$('option.vanilla-versions').show();
 		$('.papermc-versions').hide();
-		$('.vanilla-versions[value="1.15.2"]').prop('selected', true)
+		$('.vanilla-versions[value="1.16.1"]').prop('selected', true)
 	});
 	$('input#papermc').on('change', () => {
 		$('option.vanilla-versions').hide();
 		$('.papermc-versions').show();
-		$('.papermc-versions[value="1.15"]').prop('selected', true)
+		$('.papermc-versions[value="1.16"]').prop('selected', true)
 	});
 }
 

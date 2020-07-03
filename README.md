@@ -21,9 +21,9 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 - :heavy_check_mark: Download Vanilla ([Java Edition](https://minecraft.gamepedia.com/Java_Edition)) Jar
 - :heavy_check_mark: Download [PaperMC](https://papermc.io/) (Spigot) Jar
 - :heavy_check_mark: Automatically "sign" EULA
+- :heavy_check_mark: Import existing servers
 - :x: [Bedrock Editon](https://minecraft.gamepedia.com/Bedrock_Edition) servers
 - :x: [Snapshot](https://minecraft.gamepedia.com/Tutorials/How_to_install_a_snapshot) servers
-- :x: Import existing servers ___(Required for 0.1.0a release)___
 
 #### Managing Minecraft servers
 

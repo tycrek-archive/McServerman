@@ -199,6 +199,16 @@ function setRoutes() {
 			.catch((err) => res.send(buildServerResponse(false, err)));
 	});
 
+	/// Import existing server
+	app.get('/servers/import/:type/:version/:name/:directory/:jar', (req, res, next) => {
+		let p = req.params;
+		let mc = new Minecraft();
+		mc.import(p.type, p.version, p.name, Base64.decode(p.directory), Base64.decode(p.jar))
+			.then(() => SERVERS[mc.suuid] = mc)
+			.then(() => res.send(buildServerResponse(true, '')))
+			.catch(err => res.send(buildServerResponse(false, err)));
+	});
+
 	/// Update server.properties
 	// Probably should do this as POST but Express wanted JSON data for POST
 	// which the client does not send for this function. This should be fine
