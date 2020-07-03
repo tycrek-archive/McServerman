@@ -9,8 +9,8 @@ I created this because I'm annoyed with managing my various servers through the 
 
 If you like this project, consider [donating](https://jmoore.dev/donate). I do all this in my spare time without making any profit so anything is appreciated!
 
-- ###### Current version: N/A (in development)
-- ###### Next version 0.1.0a
+- ###### Current version: 0.1.0a
+- ###### Next version 0.2.0a
 
 ## Features
 
