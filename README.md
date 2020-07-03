@@ -12,8 +12,6 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 - ###### Current version: N/A (in development)
 - ###### Next version 0.1.0a
 
----
-
 ## Features
 
 #### Creating Minecraft servers
@@ -83,8 +81,6 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 - :x: [Progressive Web APP](https://www.howtogeek.com/342121/what-are-progressive-web-apps/) (PWA)
 - :x: Run using [paperd](https://github.com/PaperMC/paperd) on Unix systems
 
----
-
 ## Installation
 
 #### Requirements
@@ -112,8 +108,6 @@ $ node app.js
 
 If all goes as planned, you should see: `Server hosted on 0.0.0.0:7767`
 
----
-
 ## Usage
 
 1. After running `node app.js`, open your browser and navigate to: [localhost:7767](http://localhost:7767)
@@ -130,8 +124,6 @@ If all goes as planned, you should see: `Server hosted on 0.0.0.0:7767`
 7. You can also add/remove players from the server whitelist in the table below the properties table. Make sure to also enable the whitelist in `server.properties`. To use the updated whitelist, restart your Minecraft server.
 8. To stop McServerman, go to the console or terminal where you ran `node app.js` and press `CTRL+C` on your keyboard. Any active Minecraft servers will stay active, so this is usually safe.
 
----
-
 ## Supported Minecraft versions
 
 Assume all versions include patch unless specified. i.e. 1.15 includes 1.15.2, etc.
@@ -143,7 +135,7 @@ Assume all versions include patch unless specified. i.e. 1.15 includes 1.15.2, e
 
 | Version | Vanilla | Paper |
 | ------- | ------- | ----- |
-| 1.16 | ![](https://img.shields.io/badge/-experimental-orange) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
+| 1.16 | ![](https://img.shields.io/badge/-experimental-orange) | ![](https://img.shields.io/badge/-experimental-orange) |
 | 1.15 | ![](https://img.shields.io/badge/-supported-brightgreen) | ![](https://img.shields.io/badge/-supported-brightgreen) |
 | 1.14 | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
 | 1.13 | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
@@ -154,15 +146,11 @@ Assume all versions include patch unless specified. i.e. 1.15 includes 1.15.2, e
 | 1.8 | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
 | 1.7 & below | ![](https://img.shields.io/badge/-not%20supported-lightgrey) | ![](https://img.shields.io/badge/-not%20supported-lightgrey) |
 
----
-
 ## Limitations
 
 1. Development is slow because I get distracted easily.
 2. Currently only works on Linux. macOS and ~~Windows~~ support will probably need to be done by other developers as I don't own either system. **Update**: Basic Windows support is now available
 3. 32-bit operating systems and Java are **not** supported. This is on purpose. Buy a new computer if this is a problem.
-
----
 
 ## Contributing
 
@@ -174,8 +162,6 @@ Some stuff that would be really helpful to me:
 4. Bug fixes
 5. Translations?
 
----
-
 ## Acknowledgements
 
 - [Mojang](https://www.mojang.com/) and [Markus Persson (Notch)](https://en.wikipedia.org/wiki/Markus_Persson) for making the best [lasagna recipe I have ever tasted](https://www.minecraft.net/en-us/)
@@ -186,13 +172,9 @@ Some stuff that would be really helpful to me:
 - [Official Minecraft Wiki - Gamepedia](https://minecraft.gamepedia.com/Server.properties)
 - [Daniel Ennis](https://aikar.co/author/daniel-ennis-aikar/) for providing [invaluable information](https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/) on JVM garbage collection to improve running Minecraft servers
 
----
-
 ## The name "McServerman"
 
 I thought it would be funny because it sounds like "McDonalds". The full name is "Minecraft Server Manager".
-
----
 
 ## Hotel?
 
