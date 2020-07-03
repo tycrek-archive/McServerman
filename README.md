@@ -38,9 +38,9 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 
 - :heavy_check_mark: Upload existing worlds
 - :heavy_check_mark: Download active world (currently downloads entire server)
-- :x: Backup/Restore (not the same as download/upload: these are server-side restore points)
-- :x: Regenerate world (i.e. erase current world and start a new one)
-- :x: World switching (example: switching between a parkour map and a survival map)
+- :x: Backup/Restore (not the same as download/upload: these are server-side restore points) ___(Required for 0.2.0a release)___
+- :x: Regenerate world (i.e. erase current world and start a new one) ___(Required for 0.2.0a release)___
+- :x: World switching (example: switching between a parkour map and a survival map) ___(Required for 0.2.0a release)___
 - :x: Create new worlds with option to set custom seeds
 - :x: Upgrade for new versions (example: 1.12 -> 1.13). See [here](https://www.beastnode.com/portal/index.php?rp=/knowledgebase/191/Optional-Server-Startup-Parameters.html) and [here](https://www.minecraftforum.net/forums/support/java-edition-support/2914616-1-13-faqs-read-before-posting) for notes on the `--forceUpgrade` flag.
 
@@ -50,7 +50,8 @@ If you like this project, consider [donating](https://jmoore.dev/donate). I do a
 - :heavy_check_mark: "Op" and "Deop"
 - :heavy_check_mark: Bans (player and IP)
 - :heavy_check_mark: Run the above functions before players have ever joined using player UUID's
-- :x: List all players who have previously joined and run the above functions on them
+- :x: List all players who have previously joined and run the above functions on them ___(Required for 0.2.0a release)___
+- :x: Player permissions
 
 #### Statistics
 
