@@ -229,6 +229,36 @@ class Minecraft {
 		});
 	}
 
+	import(mType, mVersion, mName, mDirectory, mJar) {
+		log.info(`Importing server ${mName} from ${mDirectory}`);
+		return new Promise((resolve, reject) => {
+			let suuid = this.suuid;
+			let type = mType;
+			let version = mVersion;
+			let name = mName;
+			let directory = mDirectory;
+			let jar = mJar;
+
+			// If the path doesn't exist then we obviously can't import it
+			fs.pathExists(path.join(directory, jar))
+				.then((exists) => {
+					if (!exists) throw Error('Path does not exist!');
+					else return;
+				})
+
+				// We must assume the server has already been set up so all we do is write the config
+				.then(() => writeUserConfig(name, version, type, suuid, directory, jar))
+
+				// Read/write server.properties to ensure query and RCON are enabled by default
+				.then(() => fs.readFile(path.join(directory, 'server.properties')))
+				.then((bytes) => bytes.toString())
+				.then((properties) => this.writeProperties(properties))
+
+				.then(() => resolve())
+				.catch((err) => reject(err));
+		});
+	}
+
 	// Deletes the server folder and removes from USER_CONFIG
 	remove() {
 		log.info(`Removing server ${this.suuid}`);
