@@ -127,12 +127,12 @@ function setupRadioButtonVersionSwap() {
 	$('input#vanilla').on('change', () => {
 		$('option.vanilla-versions').show();
 		$('.papermc-versions').hide();
-		$('.vanilla-versions[value="1.16.1"]').prop('selected', true)
+		$('.vanilla-versions[value="1.16.4"]').prop('selected', true)
 	});
 	$('input#papermc').on('change', () => {
 		$('option.vanilla-versions').hide();
 		$('.papermc-versions').show();
-		$('.papermc-versions[value="1.16"]').prop('selected', true)
+		$('.papermc-versions[value="1.16.4"]').prop('selected', true)
 	});
 }
 
