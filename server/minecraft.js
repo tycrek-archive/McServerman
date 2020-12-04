@@ -858,7 +858,7 @@ function runJar(directory, jar, wait = true, useExperimentalFlags = true) {
 			.then((args) => spawn(bin, args, options))
 			.then((spawnedProcess) => java = spawnedProcess)
 			.then(() => fs.ensureFile(path.join(directory, '.pid')))
-			.then(() => fs.writeFile(path.join(directory, '.pid'), java.pid))
+			.then(() => fs.writeFile(path.join(directory, '.pid'), java.pid.toString()))
 			.then(() => {
 				// Print stdout and stderr
 				java.stdout.on('data', (out) => log.info(`[${java.pid}] stdout: ${out.toString().trim()}`));
