@@ -30,7 +30,7 @@
     "pino": "^6.7.0",
     "pino-pretty": "^4.3.0",
     "process-exists": "^4.0.0",
-    "pug": "^2.0.4",
+    "pug": "^3.0.1",
     "randomstring": "^1.1.5",
     "rcon": "^1.0.3",
     "uuid": "^7.0.3"
